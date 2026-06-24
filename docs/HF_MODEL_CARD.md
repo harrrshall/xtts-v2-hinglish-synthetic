@@ -86,6 +86,30 @@ Input conventions (important):
   chunk longer input on clause boundaries.
 - Language token is `"hi"` for Hinglish (the Hindi tokenizer carries the Latin English spans).
 
+## Smaller download — fp16 build (optional, no quality loss)
+
+`model_fp16.pth` (**~1.04 GB**, half of `model.pth`'s 2.08 GB) is an optional smaller build. The
+weights are stored in fp16 but **upcast to fp32 when the model loads**, so inference math is
+unchanged — this is *not* runtime half-precision (`model.half()`), which XTTS's vocoder can't do
+safely. To use it, just swap the checkpoint path:
+
+```python
+model.load_checkpoint(config, checkpoint_path=f"{repo}/model_fp16.pth",
+                      vocab_path=f"{repo}/vocab.json", use_deepspeed=False)
+```
+
+No-quality-loss was verified three independent ways (paired, with bootstrap 95% CIs):
+
+| Test | Result |
+|------|--------|
+| Numerical equivalence (deterministic) | latent/speaker cosine ≈ 0.999999; greedy decode **bit-identical tokens** on all voices; vocoder SNR 35-42 dB |
+| Greedy-paired (isolates fp16 rounding) | UTMOS −0.010 [−0.034, +0.003]; SECS −0.0005 [−0.0016, +0.0001] |
+| Sampled-paired (temp 0.7, real usage) | UTMOS +0.007 [−0.005, +0.020]; SECS −0.0009 [−0.0021, −0.0000] |
+
+Every delta is within metric noise and an order of magnitude below the student-vs-teacher gaps
+above. Method and scripts: `scripts/hinglish/fp16/` and `docs/FP16_VERIFICATION.md` in the
+[repo](https://github.com/harrrshall/xtts-v2-hinglish-synthetic).
+
 ---
 
 ## The synthetic-data recipe (the core of this project)

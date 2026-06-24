@@ -24,6 +24,7 @@ syntts/
 ├── README.md                 # this file
 ├── docs/                     # all documentation
 │   ├── FINAL_REPORT.md       # authoritative results + objective verification
+│   ├── FP16_VERIFICATION.md  # fp16 build: method + no-quality-loss proof
 │   ├── PLAN.md               # the original 7-phase plan + risk register
 │   ├── RUNBOOK.md            # how to run the pipeline end to end
 │   ├── literature-review.md  # 140-paper synthetic-data-for-TTS survey
@@ -46,6 +47,7 @@ syntts/
 │   ├── train_xtts.py         # XTTS-v2 fine-tune
 │   ├── verify_prompts.py     # lexicon false-positive gate for the corpus
 │   ├── rescore_binaware.py   # bin-aware filter thresholds
+│   ├── fp16/                 # fp16 distribution build + no-quality-loss verification
 │   ├── configs/ , prompts/   # experiment config + final corpus text
 ├── data/                     # see data/README.md
 └── archive/                  # early one-off scripts + intermediate corpus drafts
@@ -56,6 +58,11 @@ syntts/
 **On Hugging Face:** [`harrrshall/xtts-v2-hinglish-synthetic`](https://huggingface.co/harrrshall/xtts-v2-hinglish-synthetic)
 (public, CPML / non-commercial). The model card there has the full synthetic-data recipe, the
 training process, and a copy-paste usage snippet. The card source is [`docs/HF_MODEL_CARD.md`](docs/HF_MODEL_CARD.md).
+
+An optional **fp16 build** (`model_fp16.pth`, ~1.04 GB, half the size) ships alongside the fp32
+default. It is fp16-on-disk / fp32-at-runtime, verified to have no quality loss three independent
+ways (numerical equivalence + greedy-paired + sampled-paired UTMOS/SECS). See
+[`docs/FP16_VERIFICATION.md`](docs/FP16_VERIFICATION.md) and [`scripts/hinglish/fp16/`](scripts/hinglish/fp16/).
 
 The trained model and full-scale outputs also live on the GPU box (compute environment), not in this
 repo, because they are large:
