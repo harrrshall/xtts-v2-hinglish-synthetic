@@ -1,0 +1,343 @@
+{
+  "overall_recall": 0.882,
+  "by_cs_mode": {
+    "cs_high": 0.748,
+    "cs_med": 0.949,
+    "tech": 0.958,
+    "question": 0.785,
+    "cs_none": 1.0,
+    "emotion": 0.917
+  },
+  "teacher_ref": {
+    "cs_none": 0.969,
+    "cs_low": 1.0,
+    "cs_med": 0.889,
+    "cs_high": 0.769,
+    "tech": 0.827,
+    "question": 1.0,
+    "emotion": 0.969,
+    "numbers": 0.694
+  },
+  "rows": [
+    {
+      "utt_id": "cs_high_0__kaustubh",
+      "wav": "data/student_eval/cs_high_0__kaustubh.wav",
+      "ref_text": "यार ये नया phone का camera बिल्कुल insane है, low light में भी photos ekdam crisp आती हैं।",
+      "voice": "kaustubh",
+      "cs_mode": "cs_high",
+      "hyp": "यार ये नया फोन का कैमरा बिल्कुल इंसेन है लो लाइट में भी फोटोस एकदम क्रिस पाती हैं।",
+      "recall": 0.769,
+      "cer": 0.167
+    },
+    {
+      "utt_id": "cs_high_1__kaustubh",
+      "wav": "data/student_eval/cs_high_1__kaustubh.wav",
+      "ref_text": "Honestly बोलूँ तो उस meeting में जो presentation थी वो totally next level थी।",
+      "voice": "kaustubh",
+      "cs_mode": "cs_high",
+      "hyp": "हॉन्सली बोलूँ तो उस मीटिंग में जो प्रेजेंटेशन थी, वो टोटली नेक्स्ट लेवल थी।",
+      "recall": 0.727,
+      "cer": 0.171
+    },
+    {
+      "utt_id": "cs_med_2__kaustubh",
+      "wav": "data/student_eval/cs_med_2__kaustubh.wav",
+      "ref_text": "मुझे कल office जल्दी पहुँचना है इसलिए alarm subah छह बजे का लगा देना।",
+      "voice": "kaustubh",
+      "cs_mode": "cs_med",
+      "hyp": "मुझे कल ऑफिस जल्दी पहुंचना है इसलिए अलार्म सुबह छह बजे का लगा देना।",
+      "recall": 1.0,
+      "cer": 0.051
+    },
+    {
+      "utt_id": "cs_med_3__kaustubh",
+      "wav": "data/student_eval/cs_med_3__kaustubh.wav",
+      "ref_text": "ये recipe try करना, इसमें थोड़ा सा butter और garlic डालने से taste double हो जाता है।",
+      "voice": "kaustubh",
+      "cs_mode": "cs_med",
+      "hyp": "ये रेसिपी ट्राई करना इसमें थोड़ा सा बटर और गार्लिक डालने से टेस्ट डबल हो जाता है।",
+      "recall": 0.917,
+      "cer": 0.148
+    },
+    {
+      "utt_id": "tech_4__kaustubh",
+      "wav": "data/student_eval/tech_4__kaustubh.wav",
+      "ref_text": "Please इस bug का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "voice": "kaustubh",
+      "cs_mode": "tech",
+      "hyp": "Please इस बग का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "question_5__kaustubh",
+      "wav": "data/student_eval/question_5__kaustubh.wav",
+      "ref_text": "Wait, तुमने सच में वो concert के tickets book कर लिए?",
+      "voice": "kaustubh",
+      "cs_mode": "question",
+      "hyp": "वही तुम ने सच में वो कांसर्ट के टिकट्स बुक कर लिया?",
+      "recall": 0.571,
+      "cer": 0.222
+    },
+    {
+      "utt_id": "cs_none_6__kaustubh",
+      "wav": "data/student_eval/cs_none_6__kaustubh.wav",
+      "ref_text": "आज शाम को बारिश होने की पूरी संभावना है, छाता ज़रूर साथ रखना।",
+      "voice": "kaustubh",
+      "cs_mode": "cs_none",
+      "hyp": "आज शाम को बारिश होने की पूरी संभावना है छाता जरूर साथ रखना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "emotion_7__kaustubh",
+      "wav": "data/student_eval/emotion_7__kaustubh.wav",
+      "ref_text": "Oh my god ये तो बहुत amazing news है, मैं बहुत खुश हूँ तुम्हारे लिए!",
+      "voice": "kaustubh",
+      "cs_mode": "emotion",
+      "hyp": "ओह माय गॉड ये तो बहुत अमेजिंग न्यूज़ है मैं बहुत खुश हूँ तुम्हारे लिए",
+      "recall": 0.917,
+      "cer": 0.085
+    },
+    {
+      "utt_id": "cs_high_0__arjun",
+      "wav": "data/student_eval/cs_high_0__arjun.wav",
+      "ref_text": "यार ये नया phone का camera बिल्कुल insane है, low light में भी photos ekdam crisp आती हैं।",
+      "voice": "arjun",
+      "cs_mode": "cs_high",
+      "hyp": "यार ये नया फोन का कैमरा बिल्कुल इंसेन है। लोअलाइट में भी फोटोस एकदम क्रिस पाती हैं।",
+      "recall": 0.769,
+      "cer": 0.178
+    },
+    {
+      "utt_id": "cs_high_1__arjun",
+      "wav": "data/student_eval/cs_high_1__arjun.wav",
+      "ref_text": "Honestly बोलूँ तो उस meeting में जो presentation थी वो totally next level थी।",
+      "voice": "arjun",
+      "cs_mode": "cs_high",
+      "hyp": "हॉन्सेस्ली बोलूँ तो उस मीटिंग में जो प्रेजेंटेशन थी वो टोटली नेक्स्ट लेवल थी।",
+      "recall": 0.727,
+      "cer": 0.171
+    },
+    {
+      "utt_id": "cs_med_2__arjun",
+      "wav": "data/student_eval/cs_med_2__arjun.wav",
+      "ref_text": "मुझे कल office जल्दी पहुँचना है इसलिए alarm subah छह बजे का लगा देना।",
+      "voice": "arjun",
+      "cs_mode": "cs_med",
+      "hyp": "मुझे कल ऑफिस जल्दी पहुंचना है इसलिए अलार्म सुबह छह बजे का लगा देना।",
+      "recall": 1.0,
+      "cer": 0.051
+    },
+    {
+      "utt_id": "cs_med_3__arjun",
+      "wav": "data/student_eval/cs_med_3__arjun.wav",
+      "ref_text": "ये recipe try करना, इसमें थोड़ा सा butter और garlic डालने से taste double हो जाता है।",
+      "voice": "arjun",
+      "cs_mode": "cs_med",
+      "hyp": "ये रेसिपी ट्राई करना इसमें थोड़ा सा बटर और गार्लिक डालने से टेस्ट डबल हो जाता है।",
+      "recall": 0.917,
+      "cer": 0.148
+    },
+    {
+      "utt_id": "tech_4__arjun",
+      "wav": "data/student_eval/tech_4__arjun.wav",
+      "ref_text": "Please इस bug का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "voice": "arjun",
+      "cs_mode": "tech",
+      "hyp": "Please इस bug का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "recall": 1.0,
+      "cer": 0.0
+    },
+    {
+      "utt_id": "question_5__arjun",
+      "wav": "data/student_eval/question_5__arjun.wav",
+      "ref_text": "Wait, तुमने सच में वो concert के tickets book कर लिए?",
+      "voice": "arjun",
+      "cs_mode": "question",
+      "hyp": "वे तुमने सच में वो कांसर्ट के टिकट्स बुक कर लिए?",
+      "recall": 0.857,
+      "cer": 0.185
+    },
+    {
+      "utt_id": "cs_none_6__arjun",
+      "wav": "data/student_eval/cs_none_6__arjun.wav",
+      "ref_text": "आज शाम को बारिश होने की पूरी संभावना है, छाता ज़रूर साथ रखना।",
+      "voice": "arjun",
+      "cs_mode": "cs_none",
+      "hyp": "आज शाम को बारिश होने की पूरी संभावना है छाता जरूर साथ रखना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "emotion_7__arjun",
+      "wav": "data/student_eval/emotion_7__arjun.wav",
+      "ref_text": "Oh my god ये तो बहुत amazing news है, मैं बहुत खुश हूँ तुम्हारे लिए!",
+      "voice": "arjun",
+      "cs_mode": "emotion",
+      "hyp": "ओह माय गॉड ये तो बहुत अमेजिंग न्यूज़ है मैं बहुत खुश हूँ तुम्हारे लिए",
+      "recall": 0.917,
+      "cer": 0.085
+    },
+    {
+      "utt_id": "cs_high_0__maya",
+      "wav": "data/student_eval/cs_high_0__maya.wav",
+      "ref_text": "यार ये नया phone का camera बिल्कुल insane है, low light में भी photos ekdam crisp आती हैं।",
+      "voice": "maya",
+      "cs_mode": "cs_high",
+      "hyp": "यार ये नया फोन का कैमरा बिल्कुल इंसेन है। लो लाइट में भी फोटोज एकदम क्रिस पाती हैं।",
+      "recall": 0.769,
+      "cer": 0.178
+    },
+    {
+      "utt_id": "cs_high_1__maya",
+      "wav": "data/student_eval/cs_high_1__maya.wav",
+      "ref_text": "Honestly बोलूँ तो उस meeting में जो presentation थी वो totally next level थी।",
+      "voice": "maya",
+      "cs_mode": "cs_high",
+      "hyp": "हॉन्सेस्ली बोलूँ तो उस मीटिंग में जो प्रेजेंटेशन थी वो टोटली नेक्स्ट लेवल थी।",
+      "recall": 0.727,
+      "cer": 0.171
+    },
+    {
+      "utt_id": "cs_med_2__maya",
+      "wav": "data/student_eval/cs_med_2__maya.wav",
+      "ref_text": "मुझे कल office जल्दी पहुँचना है इसलिए alarm subah छह बजे का लगा देना।",
+      "voice": "maya",
+      "cs_mode": "cs_med",
+      "hyp": "मुझे कल ऑफिस जल्दी पहुंचना है इसलिए अलार्म सुबह छह बजे का लगा देना।",
+      "recall": 1.0,
+      "cer": 0.051
+    },
+    {
+      "utt_id": "cs_med_3__maya",
+      "wav": "data/student_eval/cs_med_3__maya.wav",
+      "ref_text": "ये recipe try करना, इसमें थोड़ा सा butter और garlic डालने से taste double हो जाता है।",
+      "voice": "maya",
+      "cs_mode": "cs_med",
+      "hyp": "ये रेसिपी ट्राई करना इसमें थोड़ा सा बटर और गार्लिक डालने से टेस्ट डबल हो जाता है।",
+      "recall": 0.917,
+      "cer": 0.148
+    },
+    {
+      "utt_id": "tech_4__maya",
+      "wav": "data/student_eval/tech_4__maya.wav",
+      "ref_text": "Please इस bug का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "voice": "maya",
+      "cs_mode": "tech",
+      "hyp": "Please इस बग का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "question_5__maya",
+      "wav": "data/student_eval/question_5__maya.wav",
+      "ref_text": "Wait, तुमने सच में वो concert के tickets book कर लिए?",
+      "voice": "maya",
+      "cs_mode": "question",
+      "hyp": "वेट, तुमने सच में वो कांसर्ट के टिकट्स बुक कर लिए?",
+      "recall": 1.0,
+      "cer": 0.185
+    },
+    {
+      "utt_id": "cs_none_6__maya",
+      "wav": "data/student_eval/cs_none_6__maya.wav",
+      "ref_text": "आज शाम को बारिश होने की पूरी संभावना है, छाता ज़रूर साथ रखना।",
+      "voice": "maya",
+      "cs_mode": "cs_none",
+      "hyp": "आज शाम को बारिश होने की पूरी संभावना है। छाता जरूर साथ रखना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "emotion_7__maya",
+      "wav": "data/student_eval/emotion_7__maya.wav",
+      "ref_text": "Oh my god ये तो बहुत amazing news है, मैं बहुत खुश हूँ तुम्हारे लिए!",
+      "voice": "maya",
+      "cs_mode": "emotion",
+      "hyp": "ओह माय गॉड, ये तो बहुत अमेजिंग न्यूज़ है। मैं बहुत खुश हूँ तुम्हारे लिए।",
+      "recall": 0.917,
+      "cer": 0.099
+    },
+    {
+      "utt_id": "cs_high_0__aadya",
+      "wav": "data/student_eval/cs_high_0__aadya.wav",
+      "ref_text": "यार ये नया phone का camera बिल्कुल insane है, low light में भी photos ekdam crisp आती हैं।",
+      "voice": "aadya",
+      "cs_mode": "cs_high",
+      "hyp": "यार ये नया फोन का कैमरा बिल्कुल इंसेंस है। लो लाइट में भी फोटोस एकदम क्रिस्प आती हैं।",
+      "recall": 0.769,
+      "cer": 0.144
+    },
+    {
+      "utt_id": "cs_high_1__aadya",
+      "wav": "data/student_eval/cs_high_1__aadya.wav",
+      "ref_text": "Honestly बोलूँ तो उस meeting में जो presentation थी वो totally next level थी।",
+      "voice": "aadya",
+      "cs_mode": "cs_high",
+      "hyp": "हॉन्सेस्ली बोलू तो उस मीटिंग में जो प्रेजेंटेशन थी वो टोटली नेक्स्ट लेवल थी।",
+      "recall": 0.727,
+      "cer": 0.184
+    },
+    {
+      "utt_id": "cs_med_2__aadya",
+      "wav": "data/student_eval/cs_med_2__aadya.wav",
+      "ref_text": "मुझे कल office जल्दी पहुँचना है इसलिए alarm subah छह बजे का लगा देना।",
+      "voice": "aadya",
+      "cs_mode": "cs_med",
+      "hyp": "मुझे कल ऑफिस जल्दी पहुंचना है इसलिए आराम सुबह छह बजे का लगा देना।",
+      "recall": 0.923,
+      "cer": 0.077
+    },
+    {
+      "utt_id": "cs_med_3__aadya",
+      "wav": "data/student_eval/cs_med_3__aadya.wav",
+      "ref_text": "ये recipe try करना, इसमें थोड़ा सा butter और garlic डालने से taste double हो जाता है।",
+      "voice": "aadya",
+      "cs_mode": "cs_med",
+      "hyp": "ये रेसिपी ट्राई करना। इसमें थोड़ा सा बटर और गार्लिक डालने से टेस्ट डबल हो जाता है।",
+      "recall": 0.917,
+      "cer": 0.148
+    },
+    {
+      "utt_id": "tech_4__aadya",
+      "wav": "data/student_eval/tech_4__aadya.wav",
+      "ref_text": "Please इस bug का fix deploy कर दो और मुझे pull request का link भेज देना।",
+      "voice": "aadya",
+      "cs_mode": "tech",
+      "hyp": "प्लीज़ इस बग का फिक्स डिप्लोइ कर दो और मुझे पूल रिक्वेस्ट का लिंक भेज देना।",
+      "recall": 0.833,
+      "cer": 0.189
+    },
+    {
+      "utt_id": "question_5__aadya",
+      "wav": "data/student_eval/question_5__aadya.wav",
+      "ref_text": "Wait, तुमने सच में वो concert के tickets book कर लिए?",
+      "voice": "aadya",
+      "cs_mode": "question",
+      "hyp": "वे तुमने सच में वो कांसेप्ट के टिकट बुक कर लिए।",
+      "recall": 0.714,
+      "cer": 0.204
+    },
+    {
+      "utt_id": "cs_none_6__aadya",
+      "wav": "data/student_eval/cs_none_6__aadya.wav",
+      "ref_text": "आज शाम को बारिश होने की पूरी संभावना है, छाता ज़रूर साथ रखना।",
+      "voice": "aadya",
+      "cs_mode": "cs_none",
+      "hyp": "आज शाम को बारिश होने की पूरी संभावना है। छाता जरूर साथ रखना।",
+      "recall": 1.0,
+      "cer": 0.014
+    },
+    {
+      "utt_id": "emotion_7__aadya",
+      "wav": "data/student_eval/emotion_7__aadya.wav",
+      "ref_text": "Oh my god ये तो बहुत amazing news है, मैं बहुत खुश हूँ तुम्हारे लिए!",
+      "voice": "aadya",
+      "cs_mode": "emotion",
+      "hyp": "ओह माय गॉड ये तो बहुत अमेजिंग न्यूज़ है मैं बहुत खुश हूँ तुम्हारे लिए.",
+      "recall": 0.917,
+      "cer": 0.085
+    }
+  ]
+}

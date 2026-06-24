@@ -1,0 +1,50 @@
+{
+  "metrics": {
+    "intelligibility_recall": {
+      "student": 0.912,
+      "teacher": 0.928,
+      "delta": -0.016,
+      "ci95": [
+        -0.033,
+        -0.0
+      ],
+      "n": 89
+    },
+    "accent_en_recall": {
+      "student": 0.83,
+      "teacher": 0.86,
+      "delta": -0.03,
+      "ci95": [
+        -0.062,
+        -0.001
+      ],
+      "n": 57
+    },
+    "naturalness_utmos": {
+      "student": 3.104,
+      "teacher": 3.003,
+      "delta": 0.1,
+      "ci95": [
+        0.018,
+        0.181
+      ],
+      "n": 89
+    },
+    "voice_secs": {
+      "student": 0.866,
+      "teacher": 0.857,
+      "delta": 0.009,
+      "ci95": [
+        0.003,
+        0.015
+      ],
+      "n": 89
+    }
+  },
+  "not_degraded": {
+    "intelligibility_recall": true,
+    "accent_en_recall": true,
+    "naturalness_utmos": true,
+    "voice_secs": true
+  }
+}

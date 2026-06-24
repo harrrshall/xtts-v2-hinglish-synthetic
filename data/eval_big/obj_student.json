@@ -1,0 +1,829 @@
+{
+  "label": "student",
+  "n": 89,
+  "utmos_mean": 3.104,
+  "utmos_min": 1.968,
+  "utmos_max": 4.133,
+  "secs_mean": 0.866,
+  "by_voice": {
+    "arjun": {
+      "utmos": 3.063,
+      "secs": 0.848
+    },
+    "maya": {
+      "utmos": 3.674,
+      "secs": 0.871
+    },
+    "aadya": {
+      "utmos": 2.927,
+      "secs": 0.891
+    },
+    "kaustubh": {
+      "utmos": 2.634,
+      "secs": 0.855
+    }
+  },
+  "rows": [
+    {
+      "utt_id": "ev000__arjun",
+      "wav": "data/eval_big/student/ev000__arjun.wav",
+      "ref_text": "और देखो यार शिवाजी महाराज ने जो किला फतह किया था उसमें उनकी सेना बहुत ही कम थी लेकिन उनकी समझदारी और साहस के दम पर उन्होंने अपने दुश्मन को बिल्कुल हैरान कर दिया था ये बात सच्ची है",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.807,
+      "secs": 0.88
+    },
+    {
+      "utt_id": "ev001__maya",
+      "wav": "data/eval_big/student/ev001__maya.wav",
+      "ref_text": "और देखो यार शिवाजी महाराज ने जो किला फतह किया था उसमें उनकी सेना बहुत ही कम थी लेकिन उनकी समझदारी और साहस के दम पर उन्होंने अपने दुश्मन को बिल्कुल हैरान कर दिया था ये बात सच्ची है",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.67,
+      "secs": 0.901
+    },
+    {
+      "utt_id": "ev002__aadya",
+      "wav": "data/eval_big/student/ev002__aadya.wav",
+      "ref_text": "और देखो यार शिवाजी महाराज ने जो किला फतह किया था उसमें उनकी सेना बहुत ही कम थी लेकिन उनकी समझदारी और साहस के दम पर उन्होंने अपने दुश्मन को बिल्कुल हैरान कर दिया था ये बात सच्ची है",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 2.706,
+      "secs": 0.911
+    },
+    {
+      "utt_id": "ev003__kaustubh",
+      "wav": "data/eval_big/student/ev003__kaustubh.wav",
+      "ref_text": "तो जब घर में मेहमान आते हैं तब सारी जिम्मेदारी अकेले अपनी माँ के कंधे पर आती है",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.159,
+      "secs": 0.871
+    },
+    {
+      "utt_id": "ev004__arjun",
+      "wav": "data/eval_big/student/ev004__arjun.wav",
+      "ref_text": "तो जब घर में मेहमान आते हैं तब सारी जिम्मेदारी अकेले अपनी माँ के कंधे पर आती है",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.961,
+      "secs": 0.885
+    },
+    {
+      "utt_id": "ev005__maya",
+      "wav": "data/eval_big/student/ev005__maya.wav",
+      "ref_text": "तो जब घर में मेहमान आते हैं तब सारी जिम्मेदारी अकेले अपनी माँ के कंधे पर आती है",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.549,
+      "secs": 0.9
+    },
+    {
+      "utt_id": "ev006__aadya",
+      "wav": "data/eval_big/student/ev006__aadya.wav",
+      "ref_text": "तो जब घर में मेहमान आते हैं तब सारी जिम्मेदारी अकेले अपनी माँ के कंधे पर आती है",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 2.665,
+      "secs": 0.884
+    },
+    {
+      "utt_id": "ev007__arjun",
+      "wav": "data/eval_big/student/ev007__arjun.wav",
+      "ref_text": "उनका जन्म बहुत खास थाउनका जन्म बहुत खास था",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 3.21,
+      "secs": 0.859
+    },
+    {
+      "utt_id": "ev008__kaustubh",
+      "wav": "data/eval_big/student/ev008__kaustubh.wav",
+      "ref_text": "तो उनका पूरा बचपन बहुत ही कठिन परिस्थितियों में बीता था",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.939,
+      "secs": 0.814
+    },
+    {
+      "utt_id": "ev009__arjun",
+      "wav": "data/eval_big/student/ev009__arjun.wav",
+      "ref_text": "तो उनका पूरा बचपन बहुत ही कठिन परिस्थितियों में बीता था",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.971,
+      "secs": 0.807
+    },
+    {
+      "utt_id": "ev010__maya",
+      "wav": "data/eval_big/student/ev010__maya.wav",
+      "ref_text": "तो उनका पूरा बचपन बहुत ही कठिन परिस्थितियों में बीता था",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.733,
+      "secs": 0.835
+    },
+    {
+      "utt_id": "ev011__aadya",
+      "wav": "data/eval_big/student/ev011__aadya.wav",
+      "ref_text": "तो उनका पूरा बचपन बहुत ही कठिन परिस्थितियों में बीता था",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 3.158,
+      "secs": 0.876
+    },
+    {
+      "utt_id": "ev012__kaustubh",
+      "wav": "data/eval_big/student/ev012__kaustubh.wav",
+      "ref_text": "पढ़ना तो बहुत ज़रूरी होता हैपढ़ना तो बहुत ज़रूरी होता है",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 1.968,
+      "secs": 0.836
+    },
+    {
+      "utt_id": "ev013__arjun",
+      "wav": "data/eval_big/student/ev013__arjun.wav",
+      "ref_text": "पढ़ना तो बहुत ज़रूरी होता हैपढ़ना तो बहुत ज़रूरी होता है",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.857,
+      "secs": 0.873
+    },
+    {
+      "utt_id": "ev014__maya",
+      "wav": "data/eval_big/student/ev014__maya.wav",
+      "ref_text": "पढ़ना तो बहुत ज़रूरी होता हैपढ़ना तो बहुत ज़रूरी होता है",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.69,
+      "secs": 0.829
+    },
+    {
+      "utt_id": "ev015__aadya",
+      "wav": "data/eval_big/student/ev015__aadya.wav",
+      "ref_text": "पढ़ना तो बहुत ज़रूरी होता हैपढ़ना तो बहुत ज़रूरी होता है",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 2.982,
+      "secs": 0.861
+    },
+    {
+      "utt_id": "ev016__kaustubh",
+      "wav": "data/eval_big/student/ev016__kaustubh.wav",
+      "ref_text": "देखो जब हम किसी भी नई चीज़ सीखने जाते हैं तो सबसे पहले हमारे मन में एक सवाल उठना चाहिए कि आखिर हम ये क्यों सीख रहे हैं इसका हमारे जीवन में क्या महत्व है।",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.61,
+      "secs": 0.907
+    },
+    {
+      "utt_id": "ev017__arjun",
+      "wav": "data/eval_big/student/ev017__arjun.wav",
+      "ref_text": "देखो जब हम किसी भी नई चीज़ सीखने जाते हैं तो सबसे पहले हमारे मन में एक सवाल उठना चाहिए कि आखिर हम ये क्यों सीख रहे हैं इसका हमारे जीवन में क्या महत्व है।",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 3.055,
+      "secs": 0.883
+    },
+    {
+      "utt_id": "ev018__maya",
+      "wav": "data/eval_big/student/ev018__maya.wav",
+      "ref_text": "देखो जब हम किसी भी नई चीज़ सीखने जाते हैं तो सबसे पहले हमारे मन में एक सवाल उठना चाहिए कि आखिर हम ये क्यों सीख रहे हैं इसका हमारे जीवन में क्या महत्व है।",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.587,
+      "secs": 0.913
+    },
+    {
+      "utt_id": "ev019__aadya",
+      "wav": "data/eval_big/student/ev019__aadya.wav",
+      "ref_text": "देखो जब हम किसी भी नई चीज़ सीखने जाते हैं तो सबसे पहले हमारे मन में एक सवाल उठना चाहिए कि आखिर हम ये क्यों सीख रहे हैं इसका हमारे जीवन में क्या महत्व है।",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 3.034,
+      "secs": 0.925
+    },
+    {
+      "utt_id": "ev020__kaustubh",
+      "wav": "data/eval_big/student/ev020__kaustubh.wav",
+      "ref_text": "जब हम किसी चीज़ को आग के पास रखते हैं तो उसकी गर्मी धीरे धीरे उस पूरी चीज़ में में फैल जाती है और यही गर्मी का एक बहुत ही सीधा और सरल उदाहरण भी है",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.384,
+      "secs": 0.906
+    },
+    {
+      "utt_id": "ev021__arjun",
+      "wav": "data/eval_big/student/ev021__arjun.wav",
+      "ref_text": "जब हम किसी चीज़ को आग के पास रखते हैं तो उसकी गर्मी धीरे धीरे उस पूरी चीज़ में में फैल जाती है और यही गर्मी का एक बहुत ही सीधा और सरल उदाहरण भी है",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.706,
+      "secs": 0.861
+    },
+    {
+      "utt_id": "ev022__maya",
+      "wav": "data/eval_big/student/ev022__maya.wav",
+      "ref_text": "जब हम किसी चीज़ को आग के पास रखते हैं तो उसकी गर्मी धीरे धीरे उस पूरी चीज़ में में फैल जाती है और यही गर्मी का एक बहुत ही सीधा और सरल उदाहरण भी है",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.216,
+      "secs": 0.885
+    },
+    {
+      "utt_id": "ev023__aadya",
+      "wav": "data/eval_big/student/ev023__aadya.wav",
+      "ref_text": "जब हम किसी चीज़ को आग के पास रखते हैं तो उसकी गर्मी धीरे धीरे उस पूरी चीज़ में में फैल जाती है और यही गर्मी का एक बहुत ही सीधा और सरल उदाहरण भी है",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 2.5,
+      "secs": 0.9
+    },
+    {
+      "utt_id": "ev024__kaustubh",
+      "wav": "data/eval_big/student/ev024__kaustubh.wav",
+      "ref_text": "आज के समय में देश की राजनीति में बहुत बड़े परिवर्तन हो रहे हैं",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.757,
+      "secs": 0.876
+    },
+    {
+      "utt_id": "ev025__arjun",
+      "wav": "data/eval_big/student/ev025__arjun.wav",
+      "ref_text": "आज के समय में देश की राजनीति में बहुत बड़े परिवर्तन हो रहे हैं",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 3.351,
+      "secs": 0.859
+    },
+    {
+      "utt_id": "ev026__maya",
+      "wav": "data/eval_big/student/ev026__maya.wav",
+      "ref_text": "आज के समय में देश की राजनीति में बहुत बड़े परिवर्तन हो रहे हैं",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.939,
+      "secs": 0.864
+    },
+    {
+      "utt_id": "ev027__aadya",
+      "wav": "data/eval_big/student/ev027__aadya.wav",
+      "ref_text": "आज के समय में देश की राजनीति में बहुत बड़े परिवर्तन हो रहे हैं",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 3.37,
+      "secs": 0.88
+    },
+    {
+      "utt_id": "ev028__kaustubh",
+      "wav": "data/eval_big/student/ev028__kaustubh.wav",
+      "ref_text": "उनका जन्म एक छोटे से गाँव में हुआ था लेकिन उनके इरादे बहुत बड़े थे और उन्होंने अपनी पूरी ज़िन्दगी अपने देश की सेवा में लगा दी यही उन्हें बाकी लोगों से अलग बनाता था",
+      "voice": "kaustubh",
+      "cs_mode": "none",
+      "utmos": 2.501,
+      "secs": 0.877
+    },
+    {
+      "utt_id": "ev029__arjun",
+      "wav": "data/eval_big/student/ev029__arjun.wav",
+      "ref_text": "उनका जन्म एक छोटे से गाँव में हुआ था लेकिन उनके इरादे बहुत बड़े थे और उन्होंने अपनी पूरी ज़िन्दगी अपने देश की सेवा में लगा दी यही उन्हें बाकी लोगों से अलग बनाता था",
+      "voice": "arjun",
+      "cs_mode": "none",
+      "utmos": 2.808,
+      "secs": 0.893
+    },
+    {
+      "utt_id": "ev030__maya",
+      "wav": "data/eval_big/student/ev030__maya.wav",
+      "ref_text": "उनका जन्म एक छोटे से गाँव में हुआ था लेकिन उनके इरादे बहुत बड़े थे और उन्होंने अपनी पूरी ज़िन्दगी अपने देश की सेवा में लगा दी यही उन्हें बाकी लोगों से अलग बनाता था",
+      "voice": "maya",
+      "cs_mode": "none",
+      "utmos": 3.468,
+      "secs": 0.897
+    },
+    {
+      "utt_id": "ev031__aadya",
+      "wav": "data/eval_big/student/ev031__aadya.wav",
+      "ref_text": "उनका जन्म एक छोटे से गाँव में हुआ था लेकिन उनके इरादे बहुत बड़े थे और उन्होंने अपनी पूरी ज़िन्दगी अपने देश की सेवा में लगा दी यही उन्हें बाकी लोगों से अलग बनाता था",
+      "voice": "aadya",
+      "cs_mode": "none",
+      "utmos": 2.756,
+      "secs": 0.913
+    },
+    {
+      "utt_id": "ev032__kaustubh",
+      "wav": "data/eval_big/student/ev032__kaustubh.wav",
+      "ref_text": "Workout के बाद एक protein shake पीना मत भूलना, recovery के लिए ये बहुत crucial है।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.887,
+      "secs": 0.785
+    },
+    {
+      "utt_id": "ev033__arjun",
+      "wav": "data/eval_big/student/ev033__arjun.wav",
+      "ref_text": "Workout के बाद एक protein shake पीना मत भूलना, recovery के लिए ये बहुत crucial है।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 3.007,
+      "secs": 0.823
+    },
+    {
+      "utt_id": "ev034__maya",
+      "wav": "data/eval_big/student/ev034__maya.wav",
+      "ref_text": "Workout के बाद एक protein shake पीना मत भूलना, recovery के लिए ये बहुत crucial है।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.671,
+      "secs": 0.857
+    },
+    {
+      "utt_id": "ev035__aadya",
+      "wav": "data/eval_big/student/ev035__aadya.wav",
+      "ref_text": "Workout के बाद एक protein shake पीना मत भूलना, recovery के लिए ये बहुत crucial है।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 2.873,
+      "secs": 0.89
+    },
+    {
+      "utt_id": "ev036__maya",
+      "wav": "data/eval_big/student/ev036__maya.wav",
+      "ref_text": "मेरे हिसाब से इस shehar में work life balance एक complete myth बनकर रह गया है।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.841,
+      "secs": 0.857
+    },
+    {
+      "utt_id": "ev037__aadya",
+      "wav": "data/eval_big/student/ev037__aadya.wav",
+      "ref_text": "मेरे हिसाब से इस shehar में work life balance एक complete myth बनकर रह गया है।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 3.246,
+      "secs": 0.89
+    },
+    {
+      "utt_id": "ev038__kaustubh",
+      "wav": "data/eval_big/student/ev038__kaustubh.wav",
+      "ref_text": "कल रात मैंने ranked match खेला था लेकिन teammate ने पूरी game throw कर दी।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.596,
+      "secs": 0.848
+    },
+    {
+      "utt_id": "ev039__arjun",
+      "wav": "data/eval_big/student/ev039__arjun.wav",
+      "ref_text": "कल रात मैंने ranked match खेला था लेकिन teammate ने पूरी game throw कर दी।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 2.958,
+      "secs": 0.837
+    },
+    {
+      "utt_id": "ev040__maya",
+      "wav": "data/eval_big/student/ev040__maya.wav",
+      "ref_text": "कल रात मैंने ranked match खेला था लेकिन teammate ने पूरी game throw कर दी।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.695,
+      "secs": 0.85
+    },
+    {
+      "utt_id": "ev041__aadya",
+      "wav": "data/eval_big/student/ev041__aadya.wav",
+      "ref_text": "कल रात मैंने ranked match खेला था लेकिन teammate ने पूरी game throw कर दी।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 2.609,
+      "secs": 0.885
+    },
+    {
+      "utt_id": "ev042__arjun",
+      "wav": "data/eval_big/student/ev042__arjun.wav",
+      "ref_text": "तेरा alarm सुबह पाँच बजे से ring करता रहता है, please volume कम कर।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 2.864,
+      "secs": 0.882
+    },
+    {
+      "utt_id": "ev043__maya",
+      "wav": "data/eval_big/student/ev043__maya.wav",
+      "ref_text": "तेरा alarm सुबह पाँच बजे से ring करता रहता है, please volume कम कर।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.414,
+      "secs": 0.888
+    },
+    {
+      "utt_id": "ev044__aadya",
+      "wav": "data/eval_big/student/ev044__aadya.wav",
+      "ref_text": "तेरा alarm सुबह पाँच बजे से ring करता रहता है, please volume कम कर।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 2.622,
+      "secs": 0.91
+    },
+    {
+      "utt_id": "ev045__kaustubh",
+      "wav": "data/eval_big/student/ev045__kaustubh.wav",
+      "ref_text": "गर्मी में मैं अपने pet को hydrated रखने के लिए fresh water bowl दिन में तीन बार refill करती हूँ।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.783,
+      "secs": 0.823
+    },
+    {
+      "utt_id": "ev046__arjun",
+      "wav": "data/eval_big/student/ev046__arjun.wav",
+      "ref_text": "गर्मी में मैं अपने pet को hydrated रखने के लिए fresh water bowl दिन में तीन बार refill करती हूँ।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 3.221,
+      "secs": 0.833
+    },
+    {
+      "utt_id": "ev047__maya",
+      "wav": "data/eval_big/student/ev047__maya.wav",
+      "ref_text": "गर्मी में मैं अपने pet को hydrated रखने के लिए fresh water bowl दिन में तीन बार refill करती हूँ।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.406,
+      "secs": 0.873
+    },
+    {
+      "utt_id": "ev048__aadya",
+      "wav": "data/eval_big/student/ev048__aadya.wav",
+      "ref_text": "गर्मी में मैं अपने pet को hydrated रखने के लिए fresh water bowl दिन में तीन बार refill करती हूँ।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 2.713,
+      "secs": 0.841
+    },
+    {
+      "utt_id": "ev049__kaustubh",
+      "wav": "data/eval_big/student/ev049__kaustubh.wav",
+      "ref_text": "Therapy सच में help कर रही है, मुझे feel होता है मैं slowly heal हो रहा हूँ।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.881,
+      "secs": 0.847
+    },
+    {
+      "utt_id": "ev050__arjun",
+      "wav": "data/eval_big/student/ev050__arjun.wav",
+      "ref_text": "Therapy सच में help कर रही है, मुझे feel होता है मैं slowly heal हो रहा हूँ।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 2.691,
+      "secs": 0.857
+    },
+    {
+      "utt_id": "ev051__maya",
+      "wav": "data/eval_big/student/ev051__maya.wav",
+      "ref_text": "Therapy सच में help कर रही है, मुझे feel होता है मैं slowly heal हो रहा हूँ।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.372,
+      "secs": 0.846
+    },
+    {
+      "utt_id": "ev052__aadya",
+      "wav": "data/eval_big/student/ev052__aadya.wav",
+      "ref_text": "Therapy सच में help कर रही है, मुझे feel होता है मैं slowly heal हो रहा हूँ।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 2.804,
+      "secs": 0.886
+    },
+    {
+      "utt_id": "ev053__kaustubh",
+      "wav": "data/eval_big/student/ev053__kaustubh.wav",
+      "ref_text": "Ceiling fan की speed slow है, मुझे लगता है winding burn हो गई होगी अंदर से।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.617,
+      "secs": 0.87
+    },
+    {
+      "utt_id": "ev054__arjun",
+      "wav": "data/eval_big/student/ev054__arjun.wav",
+      "ref_text": "Ceiling fan की speed slow है, मुझे लगता है winding burn हो गई होगी अंदर से।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 3.239,
+      "secs": 0.809
+    },
+    {
+      "utt_id": "ev055__maya",
+      "wav": "data/eval_big/student/ev055__maya.wav",
+      "ref_text": "Ceiling fan की speed slow है, मुझे लगता है winding burn हो गई होगी अंदर से।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 4.133,
+      "secs": 0.858
+    },
+    {
+      "utt_id": "ev056__aadya",
+      "wav": "data/eval_big/student/ev056__aadya.wav",
+      "ref_text": "Ceiling fan की speed slow है, मुझे लगता है winding burn हो गई होगी अंदर से।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 3.17,
+      "secs": 0.89
+    },
+    {
+      "utt_id": "ev057__kaustubh",
+      "wav": "data/eval_big/student/ev057__kaustubh.wav",
+      "ref_text": "मुझे लगता है exam-centric model ने students को असली critical thinking से दूर कर दिया है।",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.583,
+      "secs": 0.876
+    },
+    {
+      "utt_id": "ev058__arjun",
+      "wav": "data/eval_big/student/ev058__arjun.wav",
+      "ref_text": "मुझे लगता है exam-centric model ने students को असली critical thinking से दूर कर दिया है।",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 3.29,
+      "secs": 0.857
+    },
+    {
+      "utt_id": "ev059__maya",
+      "wav": "data/eval_big/student/ev059__maya.wav",
+      "ref_text": "मुझे लगता है exam-centric model ने students को असली critical thinking से दूर कर दिया है।",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.886,
+      "secs": 0.854
+    },
+    {
+      "utt_id": "ev060__aadya",
+      "wav": "data/eval_big/student/ev060__aadya.wav",
+      "ref_text": "मुझे लगता है exam-centric model ने students को असली critical thinking से दूर कर दिया है।",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 3.133,
+      "secs": 0.879
+    },
+    {
+      "utt_id": "ev061__kaustubh",
+      "wav": "data/eval_big/student/ev061__kaustubh.wav",
+      "ref_text": "मेरा phone का recharge खत्म हो गया data बिल्कुल नहीं बचा",
+      "voice": "kaustubh",
+      "cs_mode": "med",
+      "utmos": 2.854,
+      "secs": 0.844
+    },
+    {
+      "utt_id": "ev062__arjun",
+      "wav": "data/eval_big/student/ev062__arjun.wav",
+      "ref_text": "मेरा phone का recharge खत्म हो गया data बिल्कुल नहीं बचा",
+      "voice": "arjun",
+      "cs_mode": "med",
+      "utmos": 3.558,
+      "secs": 0.776
+    },
+    {
+      "utt_id": "ev063__maya",
+      "wav": "data/eval_big/student/ev063__maya.wav",
+      "ref_text": "मेरा phone का recharge खत्म हो गया data बिल्कुल नहीं बचा",
+      "voice": "maya",
+      "cs_mode": "med",
+      "utmos": 3.863,
+      "secs": 0.875
+    },
+    {
+      "utt_id": "ev064__aadya",
+      "wav": "data/eval_big/student/ev064__aadya.wav",
+      "ref_text": "मेरा phone का recharge खत्म हो गया data बिल्कुल नहीं बचा",
+      "voice": "aadya",
+      "cs_mode": "med",
+      "utmos": 3.073,
+      "secs": 0.901
+    },
+    {
+      "utt_id": "ev065__kaustubh",
+      "wav": "data/eval_big/student/ev065__kaustubh.wav",
+      "ref_text": "मैंने tracking link पर check किया but status अभी भी out for delivery दिखा रहा है।",
+      "voice": "kaustubh",
+      "cs_mode": "high",
+      "utmos": 2.8,
+      "secs": 0.865
+    },
+    {
+      "utt_id": "ev066__arjun",
+      "wav": "data/eval_big/student/ev066__arjun.wav",
+      "ref_text": "मैंने tracking link पर check किया but status अभी भी out for delivery दिखा रहा है।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 3.298,
+      "secs": 0.847
+    },
+    {
+      "utt_id": "ev067__maya",
+      "wav": "data/eval_big/student/ev067__maya.wav",
+      "ref_text": "मैंने tracking link पर check किया but status अभी भी out for delivery दिखा रहा है।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 4.026,
+      "secs": 0.858
+    },
+    {
+      "utt_id": "ev068__aadya",
+      "wav": "data/eval_big/student/ev068__aadya.wav",
+      "ref_text": "मैंने tracking link पर check किया but status अभी भी out for delivery दिखा रहा है।",
+      "voice": "aadya",
+      "cs_mode": "high",
+      "utmos": 3.57,
+      "secs": 0.905
+    },
+    {
+      "utt_id": "ev069__arjun",
+      "wav": "data/eval_big/student/ev069__arjun.wav",
+      "ref_text": "मैंने अभी earbuds को pair किया और sound quality सुनकर मैं honestly impressed हूँ।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 3.32,
+      "secs": 0.874
+    },
+    {
+      "utt_id": "ev070__maya",
+      "wav": "data/eval_big/student/ev070__maya.wav",
+      "ref_text": "मैंने अभी earbuds को pair किया और sound quality सुनकर मैं honestly impressed हूँ।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 3.716,
+      "secs": 0.873
+    },
+    {
+      "utt_id": "ev071__kaustubh",
+      "wav": "data/eval_big/student/ev071__kaustubh.wav",
+      "ref_text": "मुझे doctor का appointment book करना है but slot सब evening के already full हैं।",
+      "voice": "kaustubh",
+      "cs_mode": "high",
+      "utmos": 3.033,
+      "secs": 0.849
+    },
+    {
+      "utt_id": "ev072__arjun",
+      "wav": "data/eval_big/student/ev072__arjun.wav",
+      "ref_text": "मुझे doctor का appointment book करना है but slot सब evening के already full हैं।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 3.228,
+      "secs": 0.858
+    },
+    {
+      "utt_id": "ev073__maya",
+      "wav": "data/eval_big/student/ev073__maya.wav",
+      "ref_text": "मुझे doctor का appointment book करना है but slot सब evening के already full हैं।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 4.018,
+      "secs": 0.859
+    },
+    {
+      "utt_id": "ev074__aadya",
+      "wav": "data/eval_big/student/ev074__aadya.wav",
+      "ref_text": "मुझे doctor का appointment book करना है but slot सब evening के already full हैं।",
+      "voice": "aadya",
+      "cs_mode": "high",
+      "utmos": 2.864,
+      "secs": 0.884
+    },
+    {
+      "utt_id": "ev076__kaustubh",
+      "wav": "data/eval_big/student/ev076__kaustubh.wav",
+      "ref_text": "Half time score level है, दोनों teams एक एक पर हैं और intensity बहुत high है।",
+      "voice": "kaustubh",
+      "cs_mode": "high",
+      "utmos": 2.614,
+      "secs": 0.857
+    },
+    {
+      "utt_id": "ev077__arjun",
+      "wav": "data/eval_big/student/ev077__arjun.wav",
+      "ref_text": "Half time score level है, दोनों teams एक एक पर हैं और intensity बहुत high है।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 2.989,
+      "secs": 0.828
+    },
+    {
+      "utt_id": "ev078__aadya",
+      "wav": "data/eval_big/student/ev078__aadya.wav",
+      "ref_text": "Half time score level है, दोनों teams एक एक पर हैं और intensity बहुत high है।",
+      "voice": "aadya",
+      "cs_mode": "high",
+      "utmos": 2.904,
+      "secs": 0.895
+    },
+    {
+      "utt_id": "ev079__kaustubh",
+      "wav": "data/eval_big/student/ev079__kaustubh.wav",
+      "ref_text": "अरे loot drop उस rooftop पर है, फटाफट rotate कर वरना enemy team grab कर लेगी।",
+      "voice": "kaustubh",
+      "cs_mode": "high",
+      "utmos": 2.567,
+      "secs": 0.87
+    },
+    {
+      "utt_id": "ev080__arjun",
+      "wav": "data/eval_big/student/ev080__arjun.wav",
+      "ref_text": "अरे loot drop उस rooftop पर है, फटाफट rotate कर वरना enemy team grab कर लेगी।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 2.645,
+      "secs": 0.824
+    },
+    {
+      "utt_id": "ev081__maya",
+      "wav": "data/eval_big/student/ev081__maya.wav",
+      "ref_text": "अरे loot drop उस rooftop पर है, फटाफट rotate कर वरना enemy team grab कर लेगी।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 3.938,
+      "secs": 0.851
+    },
+    {
+      "utt_id": "ev082__arjun",
+      "wav": "data/eval_big/student/ev082__arjun.wav",
+      "ref_text": "Sir आपका login fail इसलिए हो रहा है क्योंकि password में caps lock on था।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 3.056,
+      "secs": 0.812
+    },
+    {
+      "utt_id": "ev083__maya",
+      "wav": "data/eval_big/student/ev083__maya.wav",
+      "ref_text": "Sir आपका login fail इसलिए हो रहा है क्योंकि password में caps lock on था।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 3.577,
+      "secs": 0.889
+    },
+    {
+      "utt_id": "ev084__aadya",
+      "wav": "data/eval_big/student/ev084__aadya.wav",
+      "ref_text": "Sir आपका login fail इसलिए हो रहा है क्योंकि password में caps lock on था।",
+      "voice": "aadya",
+      "cs_mode": "high",
+      "utmos": 2.709,
+      "secs": 0.898
+    },
+    {
+      "utt_id": "ev085__arjun",
+      "wav": "data/eval_big/student/ev085__arjun.wav",
+      "ref_text": "Generic brands try करो क्योंकि अक्सर same quality मिलती है बस packaging और price अलग होता है।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 3.482,
+      "secs": 0.839
+    },
+    {
+      "utt_id": "ev086__maya",
+      "wav": "data/eval_big/student/ev086__maya.wav",
+      "ref_text": "Generic brands try करो क्योंकि अक्सर same quality मिलती है बस packaging और price अलग होता है।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 3.428,
+      "secs": 0.904
+    },
+    {
+      "utt_id": "ev087__kaustubh",
+      "wav": "data/eval_big/student/ev087__kaustubh.wav",
+      "ref_text": "Threat model करते वक्त हमने देखा कि admin panel बिना rate limiting के exposed है।",
+      "voice": "kaustubh",
+      "cs_mode": "high",
+      "utmos": 2.515,
+      "secs": 0.82
+    },
+    {
+      "utt_id": "ev088__arjun",
+      "wav": "data/eval_big/student/ev088__arjun.wav",
+      "ref_text": "Threat model करते वक्त हमने देखा कि admin panel बिना rate limiting के exposed है।",
+      "voice": "arjun",
+      "cs_mode": "high",
+      "utmos": 2.999,
+      "secs": 0.85
+    },
+    {
+      "utt_id": "ev089__maya",
+      "wav": "data/eval_big/student/ev089__maya.wav",
+      "ref_text": "Threat model करते वक्त हमने देखा कि admin panel बिना rate limiting के exposed है।",
+      "voice": "maya",
+      "cs_mode": "high",
+      "utmos": 3.337,
+      "secs": 0.883
+    }
+  ]
+}

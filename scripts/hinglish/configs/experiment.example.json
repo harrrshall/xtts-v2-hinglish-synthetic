@@ -1,0 +1,24 @@
+{
+  "_doc": "Example experiment config for the Hinglish synthetic-data TTS pipeline. Copy, edit, pass to any stage with --config. Thresholds tau_recall/tau_cer are filled from data/filtered/calib_report.json when present (calibration over the 1497 real qwen pairs), otherwise these intuition defaults are used and a warning is logged.",
+  "run_id": "example_run",
+  "voices": ["kaustubh", "arjun", "maya", "aadya"],
+  "speeds": [0.9, 1.0, 1.1],
+  "temp_tiers": [null],
+  "teacher": "teacher_tts",
+  "sample_rate": 24000,
+  "max_chars": 250,
+
+  "target_corpus_size": 5000,
+  "over_generate_factor": 1.4,
+  "dedup_threshold": 0.85,
+
+  "tau_recall": 0.80,
+  "tau_cer": 0.30,
+  "min_s": 3.0,
+  "max_s": 30.0,
+  "dnsmos_min": null,
+
+  "max_synth_frac": 0.5,
+  "split_seed": 20260617,
+  "cs_threshold": 0.4
+}

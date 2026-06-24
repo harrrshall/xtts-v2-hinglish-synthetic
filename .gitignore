@@ -1,0 +1,26 @@
+# Audio (large + licensing: teacher/student output and in-the-wild clips)
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.opus
+*.tar.gz
+
+# Model weights (published on Hugging Face instead)
+*.pth
+
+# Copyrighted in-the-wild dataset, flagged internal-use-only (do NOT publish)
+data/spontaneous_hinglish/
+
+# Superseded local-validation scratch
+data/_archive_local_validation/
+
+# Phase-0 teacher-gate artifacts (kept local) and early one-offs
+data/teacher_gate/
+archive/
+
+# Caches / session
+**/__pycache__/
+*.pyc
+.claude/
+.DS_Store

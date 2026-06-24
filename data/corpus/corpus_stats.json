@@ -1,0 +1,63 @@
+{
+  "counts": {
+    "raw_ingested": 1476,
+    "after_clean": 1474,
+    "rejected_script_violations": 2,
+    "after_dedup": 1470,
+    "dedup_drops": 4,
+    "selected_after_balance": 1470
+  },
+  "diversity": {
+    "unique_word_ratio_compare_space": 0.1797,
+    "switch_points_per_utt": 5.801,
+    "token_entropy_corpus_bits": 9.7909,
+    "token_entropy_real_baseline_bits": 9.3574,
+    "token_entropy_ratio_vs_real": 1.0463
+  },
+  "synthetic_erosion_alarms": {
+    "mean_rep_4gram": 0.00785,
+    "utterances_with_any_4gram_repeat": 42,
+    "note": "token_entropy_ratio_vs_real well below 1.0, or a rising mean_rep_4gram, is the paper #3 narrowing/collapse signal. Re-checked at S4 and on student outputs at S5."
+  },
+  "balance_cmi_bin": {
+    "quota": {
+      "high": 1267,
+      "none": 555,
+      "low": 219,
+      "med": 1459
+    },
+    "taken": {
+      "none": 233,
+      "low": 92,
+      "med": 613,
+      "high": 532
+    },
+    "available": {
+      "none": 233,
+      "low": 92,
+      "med": 613,
+      "high": 532
+    },
+    "final_distribution": {
+      "none": 233,
+      "low": 92,
+      "med": 613,
+      "high": 532
+    }
+  },
+  "balance_domain": {
+    "conversational": 30,
+    "narration": 130,
+    "monologue_explainer": 121,
+    "lecture_longform": 63,
+    "interview_conversational": 59,
+    "conversational_friends": 126,
+    "assistant_replies": 139,
+    "customer_support_sales": 125,
+    "vlog_narration": 132,
+    "tech_work_talk": 139,
+    "reactions_emotional": 136,
+    "daily_life_errands": 131,
+    "opinions_hottakes": 139
+  }
+}
