@@ -7,7 +7,7 @@ import { loadTokenizer } from '../app/js/tokenizer.js';
 import { loadNormalizer } from '../app/js/normalize.js';
 
 const ort = ortNS.default || ortNS;
-ort.env.wasm.numThreads = 1;
+ort.env.wasm.numThreads = 4;
 
 const APP = new URL('../app/', import.meta.url);
 const rd = (p) => readFileSync(new URL(p, APP));
@@ -56,7 +56,15 @@ export async function loadEngine() {
   // O3: reusable decode-embed buffer (ORT copies data on Tensor creation)
   const _decBuf = new Float32Array(D);
   function decodeEmbed(t, pos) { const me = t * D, mp = pos * D; for (let d = 0; d < D; d++) _decBuf[d] = E.mel_emb[me + d] + E.mel_pos[mp + d]; return _decBuf; }
-  function emptyPast() { const f = {}; for (let j = 0; j < NL; j++) { f[`past_key_values.${j}.key`] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); f[`past_key_values.${j}.value`] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); } return f; }
+  // O7: pre-compute KV input/output key strings at load time (not per-step)
+  const pastKeys = [], pastVals = [], presKeys = [], presVals = [];
+  for (let j = 0; j < NL; j++) {
+    pastKeys.push(`past_key_values.${j}.key`);
+    pastVals.push(`past_key_values.${j}.value`);
+    presKeys.push(`present.${j}.key`);
+    presVals.push(`present.${j}.value`);
+  }
+  function emptyPast() { const f = {}; for (let j = 0; j < NL; j++) { f[pastKeys[j]] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); f[pastVals[j]] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); } return f; }
   const repPen = (l, seq) => { for (const t of seq) { const s = l[t]; l[t] = s < 0 ? s * PEN : s / PEN; } };
   const argmax = (a) => { let bi = 0, bv = a[0]; for (let k = 1; k < a.length; k++) if (a[k] > bv) { bv = a[k]; bi = k; } return bi; };
 
@@ -82,22 +90,23 @@ export async function loadEngine() {
       codes.push(nxt); seq.add(nxt);
       // O3: decodeEmbed reuses _decBuf
       const feed = { inputs_embeds: new ort.Tensor('float32', decodeEmbed(nxt, codes.length), [1, 1, D]) };
-      for (let j = 0; j < NL; j++) { feed[`past_key_values.${j}.key`] = past[`present.${j}.key`]; feed[`past_key_values.${j}.value`] = past[`present.${j}.value`]; }
+      // O7: use pre-cached key string arrays (no per-step template-literal allocation)
+      for (let j = 0; j < NL; j++) { feed[pastKeys[j]] = past[presKeys[j]]; feed[pastVals[j]] = past[presVals[j]]; }
       out = await sStep.run(feed);
       // O6: dispose previous step's KV tensors — prevents ~170 MB WASM heap accumulation
       for (let j = 0; j < NL; j++) {
-        past[`present.${j}.key`]?.dispose?.();
-        past[`present.${j}.value`]?.dispose?.();
+        past[presKeys[j]]?.dispose?.();
+        past[presVals[j]]?.dispose?.();
       }
       // O1: direct write, no allocation
       _latBuf.set(out.latent.data, N * D); N++;
       // O2: no copy
       logits = out.logits.data; past = out;
     }
-    // Dispose final step's KV tensors
+    // Dispose final step's KV tensors (O7: pre-cached key arrays)
     for (let j = 0; j < NL; j++) {
-      past[`present.${j}.key`]?.dispose?.();
-      past[`present.${j}.value`]?.dispose?.();
+      past[presKeys[j]]?.dispose?.();
+      past[presVals[j]]?.dispose?.();
     }
 
     // O1: subarray — no extra allocation, no post-loop copy loop

@@ -20,7 +20,8 @@ async function loadORT() {
   if (ort) return ort;
   ort = await import(`${ORT_CDN}ort.webgpu.min.mjs`);
   ort.env.wasm.wasmPaths = ORT_CDN;
-  ort.env.wasm.numThreads = 1;
+  // Use 4 threads when crossOriginIsolated (COOP+COEP headers set); fall back to 1 otherwise.
+  ort.env.wasm.numThreads = (typeof self !== 'undefined' && self.crossOriginIsolated) ? 4 : 1;
   return ort;
 }
 
@@ -43,6 +44,14 @@ export class HinglishTTS {
     this._decBuf = new Float32Array(D);
     // O1: one reusable stacked-latent buffer (max decode steps + prefill)
     this._latBuf = new Float32Array((this.MAXG + 1) * D);
+    // O7: pre-compute KV key strings once; avoids template-literal concat per decode step
+    this._pastKeys = []; this._pastVals = []; this._presKeys = []; this._presVals = [];
+    for (let j = 0; j < this.NL; j++) {
+      this._pastKeys.push(`past_key_values.${j}.key`);
+      this._pastVals.push(`past_key_values.${j}.value`);
+      this._presKeys.push(`present.${j}.key`);
+      this._presVals.push(`present.${j}.value`);
+    }
   }
 
   async _fetchBuf(url, key, label, onFile) {
@@ -159,8 +168,8 @@ export class HinglishTTS {
   _emptyPast(o) {
     const f = {};
     for (let j = 0; j < this.NL; j++) {
-      f[`past_key_values.${j}.key`]   = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
-      f[`past_key_values.${j}.value`] = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
+      f[this._pastKeys[j]] = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
+      f[this._pastVals[j]] = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
     }
     return f;
   }
@@ -170,7 +179,7 @@ export class HinglishTTS {
     const { data, L } = this._prefillEmbeds([10, 11], v.cond);
     const out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', data, [1, L, 640]), ...this._emptyPast(o) });
     const feed = { inputs_embeds: new o.Tensor('float32', this._decodeEmbed(5, 1), [1, 1, 640]) };
-    for (let j = 0; j < this.NL; j++) { feed[`past_key_values.${j}.key`] = out[`present.${j}.key`]; feed[`past_key_values.${j}.value`] = out[`present.${j}.value`]; }
+    for (let j = 0; j < this.NL; j++) { feed[this._pastKeys[j]] = out[this._presKeys[j]]; feed[this._pastVals[j]] = out[this._presVals[j]]; }
     await this.sStep.run(feed);
     const g = new o.Tensor('float32', v.spk, [1, ...v.spkShape]);
     await this.sVoc.run({ lat640: new o.Tensor('float32', new Float32Array(640), [1, 1, 640]), g });
@@ -215,9 +224,10 @@ export class HinglishTTS {
 
       // O3: _decodeEmbed reuses this._decBuf — ORT copies on Tensor creation
       const feed = { inputs_embeds: new o.Tensor('float32', this._decodeEmbed(nxt, codes.length), [1, 1, 640]) };
+      // O7: use pre-cached key arrays instead of template-literal concat per step
       for (let j = 0; j < this.NL; j++) {
-        feed[`past_key_values.${j}.key`]   = past[`present.${j}.key`];
-        feed[`past_key_values.${j}.value`] = past[`present.${j}.value`];
+        feed[this._pastKeys[j]] = past[this._presKeys[j]];
+        feed[this._pastVals[j]] = past[this._presVals[j]];
       }
       out = await this.sStep.run(feed);
 
@@ -225,8 +235,8 @@ export class HinglishTTS {
       // Without this, WASM heap / GPU VRAM accumulates ~170 MB of KV garbage across all
       // decode steps, which triggers a massive GC pause (we measured a 32s outlier).
       for (let j = 0; j < this.NL; j++) {
-        past[`present.${j}.key`]?.dispose?.();
-        past[`present.${j}.value`]?.dispose?.();
+        past[this._presKeys[j]]?.dispose?.();
+        past[this._presVals[j]]?.dispose?.();
       }
 
       // O1: direct write into pre-allocated buffer
@@ -240,8 +250,8 @@ export class HinglishTTS {
 
     // Dispose final step's KV tensors (loop ended without another step consuming them)
     for (let j = 0; j < this.NL; j++) {
-      past[`present.${j}.key`]?.dispose?.();
-      past[`present.${j}.value`]?.dispose?.();
+      past[this._presKeys[j]]?.dispose?.();
+      past[this._presVals[j]]?.dispose?.();
     }
 
     // O1: subarray avoids a separate N*D allocation; vocoder reads the live view

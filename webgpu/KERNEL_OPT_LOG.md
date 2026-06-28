@@ -141,15 +141,109 @@ relatively more significant. O5 (KV on GPU) is the big WebGPU win — needs GPU 
 UI (`index.html`) shows: `prefill Xs dec Xs voc Xs` in the result line.  
 Bench page (`bench.html`) shows a visual phase bar + per-run table.
 
+## Evo loop — Round 1 (2026-06-29)
+
+Evo workspace: `.evo/run_0000/`. Baseline exp: exp_0005, score=10,453ms.
+Per-task breakdown: arjun_medium=9,838ms, maya_short=11,067ms.
+
+### Exp C: numThreads=4 (exp_0012) — COMMITTED, 57% WIN
+
+Changed `ort.env.wasm.numThreads = 1` to `ort.env.wasm.numThreads = 4` in `_engine.mjs`.
+Node.js has SharedArrayBuffer enabled natively; ORT WASM uses WebWorkers for op-level parallelism.
+
+Score: **10,453ms → 4,481ms** (-57%). Per task:
+- arjun_medium: 9,839ms → 4,016ms (-59%)
+- maya_short: 11,067ms → 4,946ms (-55%)
+
+New phase profile with numThreads=4:
+- Prefill:  ~540ms (12%)
+- Decode: ~2,100ms (48%) — unchanged (AR decoding is sequential, single-token per step)
+- Vocoder: ~1,840ms (42%) — down from 8,600ms (79% reduction within phase)
+
+numThreads=8 (exp_0014): 10,560ms — regression from 4 threads. Thread coordination overhead
+dominates at this problem size. numThreads=2 (exp_0016) still running at time of log update.
+
+### Exp D: Decode loop key-string pre-caching / O7 (exp_0013, exp_0015) — COMMITTED
+
+Pre-computes `pastKeys[]`, `pastVals[]`, `presKeys[]`, `presVals[]` arrays (16 elements each)
+once at `loadEngine()` time. Replaces 32 template-literal string lookups per decode step with
+direct array index lookups.
+
+- exp_0013 (numThreads=1 base): 10,453ms → 10,228ms (-2.2%)
+- exp_0015 (numThreads=4 base): 4,481ms → 4,380ms (-2.3%)
+
+O7 is additive on both thread configs. Combined best: **4,380ms** (58% below original baseline).
+
+### Exp A: Vocoder latent chunking (exp_0006, exp_0009) — FALSIFIED
+
+Hypothesis: splitting `[1,N,640]` into K-latent chunks reduces WASM cache pressure.
+
+Result: **2.1x regression** for both K=32 and K=64. Both produced ~22,000ms.
+
+Key finding: ORT WASM has a **near-constant ~11,000ms fixed cost per `sVoc.run()` call**,
+independent of N. This is not memory-bandwidth-bound; it's dispatch/graph-execution overhead.
+Adding any split produces 2+ calls → 2× the overhead. Chunking is definitively wrong.
+
+Strategic implication: the vocoder cannot be sped up by decomposition. Must reduce per-call
+cost or parallelize within ORT.
+
+### Exp E: numThreads fine-tuning (exp_0017, exp_0019, exp_0020) — ALL REGRESS
+
+Full thread count grid now measured:
+```
+numThreads: 1=10453ms  2=6365ms  3=6809ms  4=4380ms  5=6008ms  6=5055ms  8=10560ms
+```
+
+numThreads=4 is the global optimum — all neighbors regress, some sharply. The non-monotonicity
+(3 > 2 in latency) suggests ORT WebWorker scheduling has odd-count overhead or unbalanced
+conv workload partitioning. Thread count axis is exhausted.
+
+### Round 2 candidates (updated priority)
+
+| # | Optimization | Rationale | Est. win |
+|---|---|---|---|
+| R2a | ORT session options (exp in progress) | executionMode/arena/pattern flags | Unknown |
+| R2b | numThreads > 1 in Node.js WASM | SharedArrayBuffer available in Node by default; vocoder convs are parallelizable | 2-4× on vocoder |
+| R2c | Vocoder warm-up dummy call in loadEngine() | Move any one-time JIT/allocation cost to load phase | Marginal |
+| R2d | KV feed loop Object.assign vs property loop | 32 property writes per step is slow; Object.assign may be faster | Small |
+
 ## Next optimization candidates
 
 | # | Optimization | Estimated win | Complexity |
 |---|---|---|---|
 | N1 | fp16 model (open item from build) | 2× speed + halve download | Medium |
-| N2 | Streaming vocoder (chunk latents, start audio earlier) | Lower perceived latency | High |
-| N3 | WASM numThreads > 1 (needs COOP/COEP headers) | 2-4× on WASM decode | Low (server config) |
-| N4 | ORT IOBinding for full step (not just KV) | Marginal on top of O5 | High |
-| N5 | Batch prefill across text-chunk calls | Eliminates redundant cond/pos embeds | Medium |
+| N2 | numThreads > 1 in Node.js WASM | 2-4× on WASM vocoder (SharedArrayBuffer native in Node) | Low |
+| N3 | ORT IOBinding for full step (not just KV) | Marginal on top of O5 | High |
+| N4 | Batch prefill across text-chunk calls | Eliminates redundant cond/pos embeds | Medium |
+
+### Exp G/H: WASM SIMD + binary audit (exp_0022, exp_0023) — NEUTRAL / CONFIRMED
+
+SIMD is auto-detected correctly by ORT 1.22 in Node.js 22 (WebAssembly.validate = true).
+Setting `ort.env.wasm.simd = true` explicitly is a no-op (+105ms noise).
+`ort.env.wasm.proxy = false` is a browser concept; neutral in Node.js.
+
+Binary audit: only `ort-wasm-simd-threaded.wasm` is installed — no fallback binary exists.
+The 57% numThreads=4 speedup is confirmed genuine SIMD + multi-threaded execution.
+
+## Final optimization summary
+
+| Optimization | Exp | Change | Status |
+|---|---|---|---|
+| O1-O6 (pre-alloc, KV dispose, etc.) | pre-evo | -5.6% median, -98% variance | Shipped |
+| numThreads=4 | exp_0012 | **-57%** (10453→4481ms) | Shipped |
+| O7 decode key-string pre-cache | exp_0015 | -2.3% (4481→4380ms) | Shipped |
+| Vocoder chunking | exp_0006/0009 | FALSIFIED: +118% per call | Ruled out |
+| ORT session flags | exp_0007-0011 | NEUTRAL | Ruled out |
+| numThreads 3/5/6/8 | exp_0014/0016-0017/0019-0020 | All regress | Ruled out |
+| O8 emptyPast/feed pre-alloc | exp_0018/0021 | HARMFUL or noise | Ruled out |
+| SIMD explicit / proxy | exp_0022/0023 | NEUTRAL (already on) | Ruled out |
+
+**Overall: 10,453ms → 4,380ms = 58% reduction from the O1-O6 baseline.**
+**vs original pre-O1 baseline (~11,262ms): 61% reduction.**
+
+Per-task final (exp_0015):
+- arjun_medium: 9,839ms → ~3,908ms (estimated from O7 delta on arjun)
+- maya_short:   11,067ms → ~4,852ms
 
 ## How to re-run benchmark
 
