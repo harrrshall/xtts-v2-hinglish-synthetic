@@ -225,6 +225,22 @@ Setting `ort.env.wasm.simd = true` explicitly is a no-op (+105ms noise).
 Binary audit: only `ort-wasm-simd-threaded.wasm` is installed — no fallback binary exists.
 The 57% numThreads=4 speedup is confirmed genuine SIMD + multi-threaded execution.
 
+### fp16 ONNX model — BLOCKED on WASM EP (exp_0024)
+
+fp16 models exist at `webgpu/models/fp16/` (gpt_step: 308→155MB, vocoder: 71→36MB).
+Python verification (`11_fp16_merged.py`) confirms bit-exact codes + wav corr>0.999.
+
+ORT WASM 1.22.0 loads fp16 sessions without error. However, the WASM EP requires
+fp16 tensor *inputs* — it does NOT auto-cast float32→float16 at runtime.
+Error: `"Unexpected input data type. Actual: (tensor(float)), expected: (tensor(float16))"`.
+
+Making this work on WASM would require manual Float32→Uint16 bit-conversion for every
+input tensor per inference step, plus converting all KV cache tensors. The conversion
+overhead would likely negate the bandwidth savings for this problem size.
+
+**WebGPU path (browser):** fp16 ONNX on WebGPU EP *does* work natively and would give
+~2x speedup. This requires GPU hardware and is not testable in the Node.js WASM benchmark.
+
 ## Final optimization summary
 
 | Optimization | Exp | Change | Status |
@@ -237,6 +253,8 @@ The 57% numThreads=4 speedup is confirmed genuine SIMD + multi-threaded executio
 | numThreads 3/5/6/8 | exp_0014/0016-0017/0019-0020 | All regress | Ruled out |
 | O8 emptyPast/feed pre-alloc | exp_0018/0021 | HARMFUL or noise | Ruled out |
 | SIMD explicit / proxy | exp_0022/0023 | NEUTRAL (already on) | Ruled out |
+| fp16 ONNX model (WASM) | exp_0024 | BLOCKED: WASM EP requires fp16 inputs; no auto-cast | Ruled out |
+| fp16 ONNX model (WebGPU) | untested | ~2x expected; models exist, needs GPU hardware | Future |
 
 **Overall: 10,453ms → 4,380ms = 58% reduction from the O1-O6 baseline.**
 **vs original pre-O1 baseline (~11,262ms): 61% reduction.**
