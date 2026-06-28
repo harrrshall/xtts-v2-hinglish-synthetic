@@ -32,7 +32,10 @@ export async function loadEngine() {
   const ebuf = new Float32Array(rd('assets/embeddings.bin').buffer.slice());
   const E = {}; for (const [k, m] of Object.entries(emeta)) E[k] = ebuf.subarray(m.off, m.off + m.shape[0] * m.shape[1]);
 
-  const tok = await loadTokenizer(new URL('assets/tokenizer.json', APP).href.replace('file://', ''));
+  // Import PreTrainedTokenizer from nodecheck's own node_modules so node resolves
+  // @huggingface/transformers relative to _engine.mjs (not to app/js/tokenizer.js).
+  const { PreTrainedTokenizer } = await import('@huggingface/transformers');
+  const tok = await loadTokenizer(new URL('assets/tokenizer.json', APP).href.replace('file://', ''), { PreTrainedTokenizer });
   // loadNormalizer fetch()es its url; node's fetch can't read local files, so shim it for this call.
   const realFetch = globalThis.fetch;
   globalThis.fetch = async (u) => ({ json: async () => JSON.parse(readFileSync(new URL('assets/normalize.json', APP))) });
