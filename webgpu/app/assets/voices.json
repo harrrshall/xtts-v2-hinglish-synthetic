@@ -1,0 +1,1 @@
+{"aadya": {"cond_off": 0, "cond_shape": [32, 640], "spk_off": 20480, "spk_shape": [512, 1]}, "arjun": {"cond_off": 20992, "cond_shape": [32, 640], "spk_off": 41472, "spk_shape": [512, 1]}, "kaustubh": {"cond_off": 41984, "cond_shape": [32, 640], "spk_off": 62464, "spk_shape": [512, 1]}, "maya": {"cond_off": 62976, "cond_shape": [32, 640], "spk_off": 83456, "spk_shape": [512, 1]}}

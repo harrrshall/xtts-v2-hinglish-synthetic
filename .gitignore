@@ -8,6 +8,10 @@
 
 # Model weights (published on Hugging Face instead)
 *.pth
+*.onnx
+
+# Node deps for the webgpu app + test harness
+**/node_modules/
 
 # Copyrighted in-the-wild dataset, flagged internal-use-only (do NOT publish)
 data/spontaneous_hinglish/

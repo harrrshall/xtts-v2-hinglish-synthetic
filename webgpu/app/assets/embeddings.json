@@ -1,0 +1,1 @@
+{"text_emb": {"off": 0, "shape": [6681, 640]}, "mel_emb": {"off": 4275840, "shape": [1026, 640]}, "text_pos": {"off": 4932480, "shape": [404, 640]}, "mel_pos": {"off": 5191040, "shape": [608, 640]}}

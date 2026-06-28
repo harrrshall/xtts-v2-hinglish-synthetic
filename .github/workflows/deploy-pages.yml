@@ -1,0 +1,33 @@
+# Publishes the static syntts app (webgpu/app) to GitHub Pages.
+# Enable once in the repo: Settings -> Pages -> Source: "GitHub Actions".
+# The big ONNX models are NOT in the repo (gitignored); set config.json "modelBase" to your HF Hub
+# resolve URL so the app pulls weights from the Hub. See webgpu/deploy/DEPLOY.md.
+name: Deploy syntts to Pages
+on:
+  push:
+    branches: [main]
+    paths: ['webgpu/app/**', '.github/workflows/deploy-pages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare site
+        run: touch webgpu/app/.nojekyll   # serve files/dirs with leading underscores as-is
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: webgpu/app
+      - id: deployment
+        uses: actions/deploy-pages@v4

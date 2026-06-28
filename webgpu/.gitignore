@@ -1,0 +1,6 @@
+golden/
+models/
+*.onnx
+*.wav
+*.npz
+__pycache__/
