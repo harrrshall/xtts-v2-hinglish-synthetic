@@ -8,5 +8,8 @@
     "eval:chunk": "node _chunk_eval.mjs",
     "repro:long": "node _long_repro.mjs"
   },
-  "dependencies": { "onnxruntime-web": "1.22.0" }
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "onnxruntime-web": "1.22.0"
+  }
 }
