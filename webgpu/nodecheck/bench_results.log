@@ -1,0 +1,6 @@
+
+--- 2026-06-28 18:14:30 ---
+text="mera naam Kaustubh hai aur main Delhi se hoon" voice=maya warmup=2 runs=6
+BASELINE  median=11773ms  std=9683ms  min=11027ms  max=31796ms  js=4.6ms
+OPTIMIZED median=11115ms  std=160ms  min=10852ms  max=11304ms  js=4.1ms
+DELTA     total=5.6%  std_reduction=98%

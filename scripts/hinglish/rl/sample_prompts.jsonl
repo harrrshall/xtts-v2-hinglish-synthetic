@@ -1,0 +1,8 @@
+{"utt_id": "hindi_01__aadya", "ref_text": "आज मौसम बहुत अच्छा है और मैं घूमने जाना चाहता हूँ", "voice": "aadya", "kind": "pure_hindi"}
+{"utt_id": "hindi_02__arjun", "ref_text": "मुझे यह किताब बहुत पसंद आई इसकी कहानी दिल को छू गई", "voice": "arjun", "kind": "pure_hindi"}
+{"utt_id": "hindi_03__kaustubh", "ref_text": "कल रात मैंने एक अजीब सपना देखा जो अभी तक याद है", "voice": "kaustubh", "kind": "pure_hindi"}
+{"utt_id": "hindi_04__maya", "ref_text": "हमें अपने बड़ों का हमेशा सम्मान करना चाहिए और उनकी बात सुननी चाहिए", "voice": "maya", "kind": "pure_hindi"}
+{"utt_id": "cs_01__aadya", "ref_text": "मुझे यह project बहुत interesting लग रहा है, can you believe it?", "voice": "aadya", "kind": "code_switch"}
+{"utt_id": "cs_02__arjun", "ref_text": "कल मैंने नया phone खरीदा but the battery life is terrible", "voice": "arjun", "kind": "code_switch"}
+{"utt_id": "cs_03__kaustubh", "ref_text": "आज office में एक important meeting है तो मैं थोड़ा busy रहूँगा", "voice": "kaustubh", "kind": "code_switch"}
+{"utt_id": "cs_04__maya", "ref_text": "इस restaurant का food बहुत tasty है, you should definitely try it", "voice": "maya", "kind": "code_switch"}

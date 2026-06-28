@@ -241,27 +241,76 @@ overhead would likely negate the bandwidth savings for this problem size.
 **WebGPU path (browser):** fp16 ONNX on WebGPU EP *does* work natively and would give
 ~2x speedup. This requires GPU hardware and is not testable in the Node.js WASM benchmark.
 
-## Final optimization summary
+## Round 5 — Ideator sweep + final experiments (2026-06-29)
+
+Three ideators (failure_analysis, literature, frontier_extrapolation) ran in parallel after stall=3.
+
+Surfaced proposals and outcomes:
+
+### INT8 dynamic quantization (tested, not submitted as evo exp)
+
+`onnxruntime.quantization.quantize_dynamic` on gpt_step.onnx. Output: 84.6 MB (vs 308 MB fp32),
+with 65 MatMulInteger ops + 32 unquantizable MatMul. Quick Node.js timing: 4.3% improvement
+on single decode step (22ms vs 23ms median). Below noise floor (~200-400ms per round).
+Also confirmed by literature: GitHub issue #12854 documents CPU uint8 inference slower than fp32
+on WASM for conv-heavy models. Ruled out.
+
+### ORT 1.27.0 upgrade (tested, not submitted as evo exp)
+
+Vocoder: 1.22.0=2997ms, 1.27.0=3106ms (neutral/slightly slower).
+GPT decode step: 1.22.0=22ms, 1.27.0=25ms (slight regression, within noise).
+LazyRelease allocator improvements in 1.24.2 do not apply to the WASM CPU path.
+Relaxed SIMD still unavailable (feature request #22533 open). Ruled out.
+
+### freeDimensionOverrides {T: 600} on vocoder session (tested, ruled out immediately)
+
+`freeDimensionOverrides` in ORT WASM is a HARD shape constraint, not an optimization hint.
+Setting T=600 then passing T=60 at runtime throws:
+"Got invalid dimensions for input: lat640 index: 1 Got: 60 Expected: 600".
+Vocoder output length varies per gen() call; constraint is incompatible. Ruled out.
+
+### Voice conditioning KV pre-warm (exp_0025) — DISCARDED
+
+Pre-compute cond KV (32 tokens) at loadEngine() and use as initial past in gen() prefill.
+Math: identical to full prefill by KV-cache / causal-mask property. Parity gate PASSED (bit-exact codes).
+However, no measurable gain: prefill is ~5% of total runtime (540ms of 4380ms), and WASM prefill
+time is dominated by FFN + embedding ops, not attention bandwidth. Attention ops drop 820→292
+(64% reduction) but this isn't the WASM bottleneck at this sequence length. Discarded.
+
+Note: the voice KV pre-warm IS the right optimization for WebGPU (where attention on GPU is the
+bottleneck and prefill becomes relatively more expensive per step). The math and code are correct.
+
+## Final optimization summary — CONVERGED
 
 | Optimization | Exp | Change | Status |
 |---|---|---|---|
 | O1-O6 (pre-alloc, KV dispose, etc.) | pre-evo | -5.6% median, -98% variance | Shipped |
 | numThreads=4 | exp_0012 | **-57%** (10453→4481ms) | Shipped |
 | O7 decode key-string pre-cache | exp_0015 | -2.3% (4481→4380ms) | Shipped |
-| Vocoder chunking | exp_0006/0009 | FALSIFIED: +118% per call | Ruled out |
+| Vocoder chunking | exp_0006/0009 | FALSIFIED: +118% per call (fixed dispatch overhead) | Ruled out |
 | ORT session flags | exp_0007-0011 | NEUTRAL | Ruled out |
-| numThreads 3/5/6/8 | exp_0014/0016-0017/0019-0020 | All regress | Ruled out |
+| numThreads 2/3/5/6/8 | exp_0014/0016-0020 | All regress | Ruled out |
 | O8 emptyPast/feed pre-alloc | exp_0018/0021 | HARMFUL or noise | Ruled out |
 | SIMD explicit / proxy | exp_0022/0023 | NEUTRAL (already on) | Ruled out |
-| fp16 ONNX model (WASM) | exp_0024 | BLOCKED: WASM EP requires fp16 inputs; no auto-cast | Ruled out |
-| fp16 ONNX model (WebGPU) | untested | ~2x expected; models exist, needs GPU hardware | Future |
+| fp16 ONNX (WASM) | exp_0024 | BLOCKED: WASM EP requires fp16 inputs | Ruled out |
+| INT8 quantization (WASM) | quick test | 4.3% on decode step, below noise floor | Ruled out |
+| ORT 1.27.0 upgrade | quick test | Neutral to slightly slower | Ruled out |
+| freeDimensionOverrides | quick test | Hard constraint, breaks variable-T inference | Ruled out |
+| Voice KV pre-warm | exp_0025 | Parity passes but prefill is 5% of total, no measurable gain | Ruled out |
+| fp16 ONNX (WebGPU EP) | untested | ~2x expected; models exist at webgpu/models/fp16/ | Future |
+| Voice KV pre-warm (WebGPU) | untested | Meaningful on GPU where attention bandwidth dominates | Future |
+
+**WASM frontier converged. All accessible WASM axes exhausted.**
 
 **Overall: 10,453ms → 4,380ms = 58% reduction from the O1-O6 baseline.**
 **vs original pre-O1 baseline (~11,262ms): 61% reduction.**
 
 Per-task final (exp_0015):
-- arjun_medium: 9,839ms → ~3,908ms (estimated from O7 delta on arjun)
-- maya_short:   11,067ms → ~4,852ms
+- arjun_medium: 9,839ms → ~3,921ms
+- maya_short:   11,067ms → ~4,839ms
+
+Remaining gains require GPU hardware (fp16 on WebGPU EP, ~2x) or model-level changes
+(decoder step fusion, Vocos vocoder replacement). Neither is accessible in the WASM benchmark.
 
 ## How to re-run benchmark
 

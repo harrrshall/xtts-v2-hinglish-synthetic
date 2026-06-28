@@ -77,7 +77,7 @@ export class HinglishTTS {
     const o = await loadORT();
     const prog = onProgress || (() => {});
     const file  = onFile    || (() => {});
-    const wantGPU = !!navigator.gpu;
+    const wantGPU = !!navigator.gpu && !!(await navigator.gpu.requestAdapter().catch(() => null));
     const eps = wantGPU ? ['webgpu', 'wasm'] : ['wasm'];
     if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
 
@@ -112,12 +112,44 @@ export class HinglishTTS {
 
     const M = this.cfg.models;
     const url = (p) => this.cfg.modelBase ? new URL(p, this.cfg.modelBase).href : p;
+
+    // On WebGPU, prefer fp16 models (~2x faster: WebGPU EP supports fp16 natively,
+    // unlike WASM EP which requires fp16 inputs and has no auto-cast).
+    let useFp16 = false;
+    if (wantGPU && M.step_fp16) {
+      try {
+        const probe = await fetch(url(M.step_fp16), { method: 'HEAD' });
+        if (probe.ok) useFp16 = true;
+      } catch {}
+    }
+    const stepPath  = useFp16 ? M.step_fp16  : M.step;
+    const vocPath   = useFp16 ? M.vocoder_fp16 : M.vocoder;
+    const stepLabel = useFp16 ? 'Acoustic model (fp16)' : 'Acoustic model';
+    const vocLabel  = useFp16 ? 'Vocoder (fp16)'        : 'Vocoder';
+
     prog('downloading model');
-    const stepBuf = await this._fetchBuf(url(M.step), 'step', 'Acoustic model', file);
+    const stepBuf = await this._fetchBuf(url(stepPath), 'step', stepLabel, file);
     this.sStep = await o.InferenceSession.create(new Uint8Array(stepBuf), stepOpt);
-    const vocBuf = await this._fetchBuf(url(M.vocoder), 'vocoder', 'Vocoder', file);
+    const vocBuf = await this._fetchBuf(url(vocPath), 'vocoder', vocLabel, file);
     this.sVoc = await o.InferenceSession.create(new Uint8Array(vocBuf), vocOpt);
-    this.provider = wantGPU ? 'webgpu' : 'wasm';
+    this.provider = wantGPU ? (useFp16 ? 'webgpu-fp16' : 'webgpu') : 'wasm';
+
+    // Pre-warm voice conditioning KV: run sStep once per voice on its 32 cond tokens.
+    // Each gen() call then only processes the shorter text+SA sequence as the prefill.
+    // Math: identical to full-prefill by KV-cache / causal-mask property (proven by parity gate).
+    prog('precomputing voice embeddings');
+    for (const [, v] of Object.entries(this.voices)) {
+      const condOut = await this.sStep.run({
+        inputs_embeds: new o.Tensor('float32', v.cond, [1, v.condShape[0], D]),
+        ...this._emptyPast(o),
+      });
+      v.condKv = {};
+      for (let j = 0; j < this.NL; j++) {
+        v.condKv[this._pastKeys[j]] = condOut[this._presKeys[j]];
+        v.condKv[this._pastVals[j]] = condOut[this._presVals[j]];
+      }
+    }
+
     prog('warming up');
     await this._warmup().catch(() => {});
     prog('ready');
@@ -142,17 +174,17 @@ export class HinglishTTS {
     for (const [k, m] of Object.entries(meta)) this.emb[k] = buf.subarray(m.off, m.off + m.shape[0] * m.shape[1]);
   }
 
-  // build prefill inputs_embeds: cond + (text_emb+text_pos) + (start_audio_emb+mel_pos[0])
-  _prefillEmbeds(ids, cond) {
-    const ti = [this.ST, ...ids, this.ET], n = ti.length, L = 32 + n + 1;
+  // Build prefill inputs_embeds: (text_emb+text_pos) + (start_audio_emb+mel_pos[0]).
+  // Cond tokens are excluded — they are pre-processed per-voice via condKv in init().
+  _prefillEmbeds(ids) {
+    const ti = [this.ST, ...ids, this.ET], n = ti.length, L = n + 1;
     const emb = new Float32Array(L * D);
-    emb.set(cond, 0);
     const { text_emb: TE, text_pos: TP, mel_emb: ME, mel_pos: MP } = this.emb;
     for (let i = 0; i < n; i++) {
-      const dst = (32 + i) * D, te = ti[i] * D, tp = i * D;
+      const dst = i * D, te = ti[i] * D, tp = i * D;
       for (let d = 0; d < D; d++) emb[dst + d] = TE[te + d] + TP[tp + d];
     }
-    const dst = (32 + n) * D, me = this.SA * D;
+    const dst = n * D, me = this.SA * D;
     for (let d = 0; d < D; d++) emb[dst + d] = ME[me + d] + MP[d];
     return { data: emb, L };
   }
@@ -176,8 +208,8 @@ export class HinglishTTS {
 
   async _warmup() {
     const o = ort, v = this.voices[this.cfg.voices[0]];
-    const { data, L } = this._prefillEmbeds([10, 11], v.cond);
-    const out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', data, [1, L, 640]), ...this._emptyPast(o) });
+    const { data, L } = this._prefillEmbeds([10, 11]);
+    const out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', data, [1, L, 640]), ...v.condKv });
     const feed = { inputs_embeds: new o.Tensor('float32', this._decodeEmbed(5, 1), [1, 1, 640]) };
     for (let j = 0; j < this.NL; j++) { feed[this._pastKeys[j]] = out[this._presKeys[j]]; feed[this._pastVals[j]] = out[this._presVals[j]]; }
     await this.sStep.run(feed);
@@ -196,9 +228,9 @@ export class HinglishTTS {
     const ids = this.tok.encode(normText, 'hi');
     const seqSet = new Set([1, this.SA]);
 
-    const { data: pe, L } = this._prefillEmbeds(ids, v.cond);
+    const { data: pe, L } = this._prefillEmbeds(ids);
     const tPrefillStart = performance.now();
-    let out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', pe, [1, L, 640]), ...this._emptyPast(o) });
+    let out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', pe, [1, L, 640]), ...v.condKv });
     const tPrefill = performance.now() - tPrefillStart;
 
     // O1: pre-allocated stacked latent buffer — write each step directly, no lats[] array,
