@@ -11,9 +11,9 @@ import { chunkText, concatWavs, DEFAULT_MAX_TEXT_IDS } from './chunk.js';
 
 const ORT_VER = '1.22.0';
 const ORT_CDN = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VER}/dist/`;
-const HF_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0';
-const CACHE = 'syntts-v1';
-const D = 640;
+const HF_CDN  = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0';
+const CACHE   = 'syntts-v1';
+const D       = 640;
 
 let ort = null;
 async function loadORT() {
@@ -23,23 +23,26 @@ async function loadORT() {
   ort.env.wasm.numThreads = 1;
   return ort;
 }
-const i64 = (arr) => BigInt64Array.from(arr, (x) => BigInt(x));
 
 export class HinglishTTS {
   constructor(cfg) {
-    this.cfg = cfg;
-    this.C = cfg.constants;
-    this.PEN = cfg.decode.repetition_penalty;
-    this.NL = this.C.layers;
-    this.H = this.C.heads;
-    this.SA = this.C.start_audio_token;
-    this.EA = this.C.stop_audio_token;
-    this.ST = this.C.start_text_token;
-    this.ET = this.C.stop_text_token;
-    this.MAXG = this.C.max_gen_mel_tokens;
-    this.chunkCfg = cfg.chunk || {};
+    this.cfg     = cfg;
+    this.C       = cfg.constants;
+    this.PEN     = cfg.decode.repetition_penalty;
+    this.NL      = this.C.layers;
+    this.H       = this.C.heads;
+    this.SA      = this.C.start_audio_token;
+    this.EA      = this.C.stop_audio_token;
+    this.ST      = this.C.start_text_token;
+    this.ET      = this.C.stop_text_token;
+    this.MAXG    = this.C.max_gen_mel_tokens;
+    this.chunkCfg  = cfg.chunk || {};
     this.maxTextIds = this.chunkCfg.maxTextIds || DEFAULT_MAX_TEXT_IDS;
-    this.provider = null;
+    this.provider  = null;
+    // O3: single reusable decode-embed buffer (ORT copies data into WASM/GPU on Tensor creation)
+    this._decBuf = new Float32Array(D);
+    // O1: one reusable stacked-latent buffer (max decode steps + prefill)
+    this._latBuf = new Float32Array((this.MAXG + 1) * D);
   }
 
   async _fetchBuf(url, key, label, onFile) {
@@ -64,26 +67,47 @@ export class HinglishTTS {
   async init({ onProgress, onFile } = {}) {
     const o = await loadORT();
     const prog = onProgress || (() => {});
-    const file = onFile || (() => {});
+    const file  = onFile    || (() => {});
     const wantGPU = !!navigator.gpu;
     const eps = wantGPU ? ['webgpu', 'wasm'] : ['wasm'];
     if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
 
+    // O4: request high-performance GPU when available
+    if (wantGPU && o.env.webgpu) o.env.webgpu.powerPreference = 'high-performance';
+
     prog('loading runtime + tokenizer');
     const { PreTrainedTokenizer } = await import(/* @vite-ignore */ HF_CDN);
-    this.tok = await loadTokenizer(new URL('assets/tokenizer.json', location.href).href, { PreTrainedTokenizer });
+    this.tok  = await loadTokenizer(new URL('assets/tokenizer.json', location.href).href, { PreTrainedTokenizer });
     this.norm = await loadNormalizer(new URL('assets/normalize.json', location.href).href);
     await this._loadVoices();
     await this._loadEmbeddings();
 
-    const opt = { executionProviders: eps, graphOptimizationLevel: 'all' };
+    // O5 (WebGPU path): keep KV-cache output tensors on the GPU across decode steps.
+    // This eliminates 2 × NL GPU→CPU→GPU transfers per decode step. On the WASM path
+    // this option is ignored. Output names that need to stay on CPU (logits, latent)
+    // are left at their default 'cpu' location.
+    const kvGpuLoc = {};
+    if (wantGPU) {
+      for (let j = 0; j < this.NL; j++) {
+        kvGpuLoc[`present.${j}.key`]   = 'gpu-buffer';
+        kvGpuLoc[`present.${j}.value`] = 'gpu-buffer';
+      }
+    }
+
+    const stepOpt = {
+      executionProviders: eps,
+      graphOptimizationLevel: 'all',
+      ...(wantGPU && Object.keys(kvGpuLoc).length ? { preferredOutputLocation: kvGpuLoc } : {}),
+    };
+    const vocOpt = { executionProviders: eps, graphOptimizationLevel: 'all' };
+
     const M = this.cfg.models;
     const url = (p) => this.cfg.modelBase ? new URL(p, this.cfg.modelBase).href : p;
     prog('downloading model');
     const stepBuf = await this._fetchBuf(url(M.step), 'step', 'Acoustic model', file);
-    this.sStep = await o.InferenceSession.create(new Uint8Array(stepBuf), opt);
+    this.sStep = await o.InferenceSession.create(new Uint8Array(stepBuf), stepOpt);
     const vocBuf = await this._fetchBuf(url(M.vocoder), 'vocoder', 'Vocoder', file);
-    this.sVoc = await o.InferenceSession.create(new Uint8Array(vocBuf), opt);
+    this.sVoc = await o.InferenceSession.create(new Uint8Array(vocBuf), vocOpt);
     this.provider = wantGPU ? 'webgpu' : 'wasm';
     prog('warming up');
     await this._warmup().catch(() => {});
@@ -93,18 +117,18 @@ export class HinglishTTS {
 
   async _loadVoices() {
     const meta = await (await fetch('assets/voices.json')).json();
-    const buf = new Float32Array(await (await fetch('assets/voices.bin')).arrayBuffer());
+    const buf  = new Float32Array(await (await fetch('assets/voices.bin')).arrayBuffer());
     this.voices = {};
     for (const [v, m] of Object.entries(meta)) {
       const cn = m.cond_shape[0] * m.cond_shape[1], sn = m.spk_shape[0] * m.spk_shape[1];
       this.voices[v] = { cond: buf.slice(m.cond_off, m.cond_off + cn), condShape: m.cond_shape,
-                         spk: buf.slice(m.spk_off, m.spk_off + sn), spkShape: m.spk_shape };
+                         spk:  buf.slice(m.spk_off,  m.spk_off  + sn), spkShape:  m.spk_shape };
     }
   }
 
   async _loadEmbeddings() {
     const meta = await (await fetch('assets/embeddings.json')).json();
-    const buf = new Float32Array(await (await fetch('assets/embeddings.bin')).arrayBuffer());
+    const buf  = new Float32Array(await (await fetch('assets/embeddings.bin')).arrayBuffer());
     this.emb = {};
     for (const [k, m] of Object.entries(meta)) this.emb[k] = buf.subarray(m.off, m.off + m.shape[0] * m.shape[1]);
   }
@@ -113,27 +137,29 @@ export class HinglishTTS {
   _prefillEmbeds(ids, cond) {
     const ti = [this.ST, ...ids, this.ET], n = ti.length, L = 32 + n + 1;
     const emb = new Float32Array(L * D);
-    emb.set(cond, 0);                                   // 32 cond rows
+    emb.set(cond, 0);
     const { text_emb: TE, text_pos: TP, mel_emb: ME, mel_pos: MP } = this.emb;
     for (let i = 0; i < n; i++) {
       const dst = (32 + i) * D, te = ti[i] * D, tp = i * D;
       for (let d = 0; d < D; d++) emb[dst + d] = TE[te + d] + TP[tp + d];
     }
-    const dst = (32 + n) * D, me = this.SA * D;          // start_audio at mel pos 0
+    const dst = (32 + n) * D, me = this.SA * D;
     for (let d = 0; d < D; d++) emb[dst + d] = ME[me + d] + MP[d];
     return { data: emb, L };
   }
 
+  // O3: write into reusable buffer; ORT copies it during Tensor creation so the buffer
+  // is safe to overwrite on the next call (after the preceding run() has returned).
   _decodeEmbed(token, pos) {
-    const { mel_emb: ME, mel_pos: MP } = this.emb, e = new Float32Array(D), me = token * D, mp = pos * D;
-    for (let d = 0; d < D; d++) e[d] = ME[me + d] + MP[mp + d];
-    return e;
+    const { mel_emb: ME, mel_pos: MP } = this.emb, me = token * D, mp = pos * D;
+    for (let d = 0; d < D; d++) this._decBuf[d] = ME[me + d] + MP[mp + d];
+    return this._decBuf;
   }
 
   _emptyPast(o) {
     const f = {};
     for (let j = 0; j < this.NL; j++) {
-      f[`past_key_values.${j}.key`] = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
+      f[`past_key_values.${j}.key`]   = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
       f[`past_key_values.${j}.value`] = new o.Tensor('float32', new Float32Array(0), [1, this.H, 0, 64]);
     }
     return f;
@@ -162,29 +188,76 @@ export class HinglishTTS {
     const seqSet = new Set([1, this.SA]);
 
     const { data: pe, L } = this._prefillEmbeds(ids, v.cond);
+    const tPrefillStart = performance.now();
     let out = await this.sStep.run({ inputs_embeds: new o.Tensor('float32', pe, [1, L, 640]), ...this._emptyPast(o) });
-    let logits = Float32Array.from(out.logits.data);
-    const lats = [Float32Array.from(out.latent.data)];
+    const tPrefill = performance.now() - tPrefillStart;
+
+    // O1: pre-allocated stacked latent buffer — write each step directly, no lats[] array,
+    //     no per-step allocation, no post-loop assembly. this._latBuf is reused across calls.
+    const lat = this._latBuf;
+    lat.set(out.latent.data, 0);
+    let N = 1;
+
+    // O2: use logits .data directly — no Float32Array.from() copy.
+    // Safe: we consume logits fully (repPenalty + argmax) before the next run() call,
+    // and ORT allocates new tensor buffers on every run(), so the ref won't alias future output.
+    let logits = out.logits.data;
     let past = out;
     const codes = [];
+    const tDecodeStart = performance.now();
+
     for (let step = 0; step < this.MAXG; step++) {
       this._repPenalty(logits, seqSet);
       const nxt = this._argmax(logits);
       if (nxt === this.EA) { codes.push(nxt); break; }
       codes.push(nxt); seqSet.add(nxt);
       if (onToken && (step % 8 === 0)) onToken(tokenBase + codes.length);
+
+      // O3: _decodeEmbed reuses this._decBuf — ORT copies on Tensor creation
       const feed = { inputs_embeds: new o.Tensor('float32', this._decodeEmbed(nxt, codes.length), [1, 1, 640]) };
-      for (let j = 0; j < this.NL; j++) { feed[`past_key_values.${j}.key`] = past[`present.${j}.key`]; feed[`past_key_values.${j}.value`] = past[`present.${j}.value`]; }
+      for (let j = 0; j < this.NL; j++) {
+        feed[`past_key_values.${j}.key`]   = past[`present.${j}.key`];
+        feed[`past_key_values.${j}.value`] = past[`present.${j}.value`];
+      }
       out = await this.sStep.run(feed);
-      logits = Float32Array.from(out.logits.data);
-      lats.push(Float32Array.from(out.latent.data));
+
+      // O6: dispose previous step's KV tensors immediately after run() consumes them.
+      // Without this, WASM heap / GPU VRAM accumulates ~170 MB of KV garbage across all
+      // decode steps, which triggers a massive GC pause (we measured a 32s outlier).
+      for (let j = 0; j < this.NL; j++) {
+        past[`present.${j}.key`]?.dispose?.();
+        past[`present.${j}.value`]?.dispose?.();
+      }
+
+      // O1: direct write into pre-allocated buffer
+      lat.set(out.latent.data, N * D);
+      N++;
+      // O2: no copy
+      logits = out.logits.data;
       past = out;
     }
-    const N = lats.length, lat = new Float32Array(N * D);
-    for (let k = 0; k < N; k++) lat.set(lats[k], k * D);
+    const tDecode = performance.now() - tDecodeStart;
+
+    // Dispose final step's KV tensors (loop ended without another step consuming them)
+    for (let j = 0; j < this.NL; j++) {
+      past[`present.${j}.key`]?.dispose?.();
+      past[`present.${j}.value`]?.dispose?.();
+    }
+
+    // O1: subarray avoids a separate N*D allocation; vocoder reads the live view
     const g = new o.Tensor('float32', v.spk, [1, ...v.spkShape]);
-    const vout = await this.sVoc.run({ lat640: new o.Tensor('float32', lat, [1, N, 640]), g });
-    return { wav: Float32Array.from(vout.wav.data), codes };
+    const tVocStart = performance.now();
+    const vout = await this.sVoc.run({ lat640: new o.Tensor('float32', lat.subarray(0, N * D), [1, N, 640]), g });
+    const tVocoder = performance.now() - tVocStart;
+
+    return {
+      wav: Float32Array.from(vout.wav.data),
+      codes,
+      tPrefill,
+      tDecode,
+      tVocoder,
+      nSteps: N,
+    };
   }
 
   async generate(text, voice, { onToken, autoNormalize = true } = {}) {
@@ -197,9 +270,11 @@ export class HinglishTTS {
     const chunks = chunkText(normText, (t) => this.tok.encode(t, 'hi').length, this.maxTextIds);
     if (chunks.length > 1) {
       const wavs = []; const allCodes = []; let tokenBase = 0;
+      let tPrefill = 0, tDecode = 0, tVocoder = 0, nSteps = 0;
       for (const ch of chunks) {
         const r = await this._genChunk(ch, v, { onToken, tokenBase });
         wavs.push(r.wav); allCodes.push(...r.codes); tokenBase += r.codes.length;
+        tPrefill += r.tPrefill; tDecode += r.tDecode; tVocoder += r.tVocoder; nSteps += r.nSteps;
       }
       const cc = this.chunkCfg;
       const wav = concatWavs(wavs, this.C.sample_rate, {
@@ -209,13 +284,16 @@ export class HinglishTTS {
       const tTotal = performance.now() - t0;
       return { wav, sampleRate: this.C.sample_rate, codes: allCodes, nCodes: allCodes.length,
                tGen: tTotal, tTotal, nChunks: chunks.length, chunks,
+               tPrefill, tDecode, tVocoder, nSteps,
                durSec: wav.length / this.C.sample_rate, provider: this.provider, normText, inputText: text };
     }
 
-    const { wav, codes } = await this._genChunk(normText, v, { onToken });
+    const { wav, codes, tPrefill, tDecode, tVocoder, nSteps } = await this._genChunk(normText, v, { onToken });
     const tTotal = performance.now() - t0;
-    return { wav, sampleRate: this.C.sample_rate, codes, nCodes: codes.length, tGen: tTotal, tTotal,
-             nChunks: 1, durSec: wav.length / this.C.sample_rate, provider: this.provider, normText, inputText: text };
+    return { wav, sampleRate: this.C.sample_rate, codes, nCodes: codes.length,
+             tGen: tTotal, tTotal, nChunks: 1,
+             tPrefill, tDecode, tVocoder, nSteps,
+             durSec: wav.length / this.C.sample_rate, provider: this.provider, normText, inputText: text };
   }
 }
 

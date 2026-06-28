@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>syntts kernel benchmark</title>
+<style>
+  body { font-family: ui-monospace, monospace; background: #0d1117; color: #e6edf3; padding: 24px; line-height: 1.6; }
+  h1 { font-size: 18px; margin: 0 0 4px; color: #58a6ff; }
+  .sub { color: #8b949e; font-size: 13px; margin: 0 0 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { background: #161b22; color: #8b949e; text-align: left; padding: 8px 12px; border-bottom: 1px solid #30363d; }
+  td { padding: 7px 12px; border-bottom: 1px solid #21262d; }
+  tr:last-child td { border-bottom: none; }
+  .tag { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .w   { background: #1f2937; color: #6b7280; }
+  .ok  { background: #0d3349; color: #38bdf8; }
+  #log { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; margin-top: 20px; font-size: 12px; color: #8b949e; white-space: pre-wrap; max-height: 380px; overflow-y: auto; }
+  .stat-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 14px; }
+  .stat-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; letter-spacing: -.02em; margin-top: 2px; }
+  .stat-sub { font-size: 11px; color: #8b949e; }
+  button { background: #1f6feb; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font: inherit; font-size: 13px; cursor: pointer; }
+  button:hover { background: #388bfd; }
+  button:disabled { opacity: .5; cursor: default; }
+  .phase-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px; gap: 2px; }
+  .phase-bar > div { height: 100%; border-radius: 2px; }
+  .pb-prefill { background: #f0883e; }
+  .pb-decode  { background: #58a6ff; }
+  .pb-vocoder { background: #3fb950; }
+  .legend { display: flex; gap: 14px; font-size: 11px; color: #8b949e; margin-top: 4px; }
+  .legend span::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .legend .lp::before { background: #f0883e; }
+  .legend .ld::before { background: #58a6ff; }
+  .legend .lv::before { background: #3fb950; }
+</style>
+</head>
+<body>
+<h1>syntts — kernel benchmark</h1>
+<p class="sub">Measures per-phase latency: prefill / AR decode loop / vocoder. Run after model loads.</p>
+
+<button id="go">Run benchmark</button>
+<span id="status" style="margin-left:12px;font-size:13px;color:#8b949e"></span>
+
+<div class="stat-box">
+  <div class="stat"><div class="stat-label">Median total</div><div class="stat-value" id="s-total">—</div><div class="stat-sub" id="s-rt">—</div></div>
+  <div class="stat"><div class="stat-label">Prefill</div><div class="stat-value" id="s-pre">—</div><div class="stat-sub">one pass</div></div>
+  <div class="stat"><div class="stat-label">Decode loop</div><div class="stat-value" id="s-dec">—</div><div class="stat-sub" id="s-steps">—</div></div>
+  <div class="stat"><div class="stat-label">Vocoder</div><div class="stat-value" id="s-voc">—</div><div class="stat-sub" id="s-voc-pct">—</div></div>
+</div>
+
+<div style="margin:16px 0 6px;font-size:12px;color:#6b7280">Phase breakdown (median run)</div>
+<div class="phase-bar">
+  <div id="bar-pre" class="pb-prefill" style="width:0%"></div>
+  <div id="bar-dec" class="pb-decode"  style="width:0%"></div>
+  <div id="bar-voc" class="pb-vocoder" style="width:0%"></div>
+</div>
+<div class="legend">
+  <span class="lp">prefill</span>
+  <span class="ld">decode</span>
+  <span class="lv">vocoder</span>
+</div>
+
+<table id="runs" style="margin-top:20px">
+  <thead><tr>
+    <th>#</th><th>Total (ms)</th><th>Prefill (ms)</th><th>Decode (ms)</th><th>Vocoder (ms)</th>
+    <th>Steps</th><th>RT factor</th><th>Note</th>
+  </tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div id="log"></div>
+
+<script type="module">
+import { HinglishTTS } from './js/tts.js';
+
+const $ = (id) => document.getElementById(id);
+const log = (...a) => { $('log').textContent += a.join(' ') + '\n'; $('log').scrollTop = $('log').scrollHeight; };
+const fmt = (ms) => ms >= 1000 ? (ms/1000).toFixed(2) + 's' : ms.toFixed(0) + 'ms';
+
+const WARMUP = 2;
+const RUNS   = 5;
+const TEXT   = 'mera naam Kaustubh hai aur main Delhi se hoon';
+const VOICE  = 'maya';
+
+let tts = null;
+
+async function loadModel() {
+  $('status').textContent = 'loading model...';
+  const cfg = await (await fetch('config.json')).json();
+  tts = new HinglishTTS(cfg);
+  log('Loading ORT + model...');
+  await tts.init({
+    onProgress: (m) => log(' progress:', m),
+    onFile: (e) => { if (e.done) log(` file ready: ${e.label} (${e.fromCache ? 'cached' : 'downloaded'})`); },
+  });
+  log('Model ready.\n');
+  $('status').textContent = 'model ready — click Run to start';
+  $('go').disabled = false;
+}
+
+function median(arr) {
+  const s = [...arr].sort((a, b) => a - b);
+  return s[Math.floor(s.length / 2)];
+}
+
+async function runBench() {
+  $('go').disabled = true;
+  $('status').textContent = 'running...';
+  $('tbody').innerHTML = '';
+  log(`\nBenchmark: ${WARMUP} warmup + ${RUNS} measured runs`);
+  log(`Input: "${TEXT}" | voice: ${VOICE}`);
+
+  const totals = [], prefills = [], decodes = [], vocoders = [];
+
+  for (let i = 0; i < WARMUP + RUNS; i++) {
+    const t0 = performance.now();
+    const r = await tts.generate(TEXT, VOICE, { autoNormalize: true });
+    const tTotal = performance.now() - t0;
+    const durSec = r.durSec;
+    const rt = durSec / (tTotal / 1000);
+    const isWarmup = i < WARMUP;
+
+    if (!isWarmup) {
+      totals.push(tTotal); prefills.push(r.tPrefill); decodes.push(r.tDecode); vocoders.push(r.tVocoder);
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="tag ${isWarmup ? 'w' : 'ok'}">${isWarmup ? 'W' + (i+1) : 'R' + (i - WARMUP + 1)}</span></td>
+      <td>${tTotal.toFixed(0)}</td>
+      <td>${r.tPrefill?.toFixed(0) ?? '—'}</td>
+      <td>${r.tDecode?.toFixed(0)  ?? '—'}</td>
+      <td>${r.tVocoder?.toFixed(0) ?? '—'}</td>
+      <td>${r.nSteps ?? '—'}</td>
+      <td>${rt.toFixed(2)}x</td>
+      <td style="color:#6b7280">${isWarmup ? 'warmup' : 'measured'}</td>`;
+    $('tbody').appendChild(tr);
+
+    log(`  ${isWarmup ? 'warmup' : 'run'} #${isWarmup ? i+1 : i-WARMUP+1}: total=${tTotal.toFixed(0)}ms  pre=${r.tPrefill?.toFixed(0)}ms  dec=${r.tDecode?.toFixed(0)}ms  voc=${r.tVocoder?.toFixed(0)}ms  RT=${rt.toFixed(2)}x`);
+  }
+
+  // summary — compute from collected data only, no extra generate() call
+  const mTotal = median(totals), mPre = median(prefills), mDec = median(decodes), mVoc = median(vocoders);
+  // estimate audio duration from median run's measured steps (STRIDE samples per mel code, SR=24000)
+  const SR = 24000, STRIDE = 1024;
+  // grab nSteps from last measured run row
+  const lastNSteps = parseInt($('tbody').querySelectorAll('tr:not(:has(.w))')[Math.floor(RUNS / 2)]?.cells[5]?.textContent) || 65;
+  const durSec = lastNSteps * STRIDE / SR;
+  const rt = durSec / (mTotal / 1000);
+
+  $('s-total').textContent = fmt(mTotal);
+  $('s-rt').textContent    = rt.toFixed(2) + 'x realtime';
+  $('s-pre').textContent   = fmt(mPre);
+  $('s-dec').textContent   = fmt(mDec);
+  $('s-voc').textContent   = fmt(mVoc);
+  const sum0 = mPre + mDec + mVoc;
+  const msPerStep = sum0 > 0 ? (mDec / Math.max(1, lastNSteps - 1)).toFixed(0) + 'ms/step' : '—';
+  $('s-steps').textContent = msPerStep;
+  $('s-voc-pct').textContent = sum0 > 0 ? ((mVoc / sum0) * 100).toFixed(0) + '% of total' : '—';
+
+  const sum = mPre + mDec + mVoc;
+  if (sum > 0) {
+    $('bar-pre').style.width = (mPre / sum * 100).toFixed(1) + '%';
+    $('bar-dec').style.width = (mDec / sum * 100).toFixed(1) + '%';
+    $('bar-voc').style.width = (mVoc / sum * 100).toFixed(1) + '%';
+  }
+
+  log(`\nMedian: total=${mTotal.toFixed(0)}ms  prefill=${mPre.toFixed(0)}ms  decode=${mDec.toFixed(0)}ms  vocoder=${mVoc.toFixed(0)}ms`);
+  log(`Vocoder is ${((mVoc / sum) * 100).toFixed(0)}% of tracked time | RT factor: ${rt.toFixed(2)}x`);
+  log(`Provider: ${tts.provider}`);
+
+  $('status').textContent = 'done';
+  $('go').disabled = false;
+}
+
+$('go').disabled = true;
+$('go').addEventListener('click', runBench);
+loadModel();
+</script>
+</body>
+</html>

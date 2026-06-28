@@ -172,8 +172,9 @@
       <div class="rmeta"><span id="rinfo"></span><a id="dl" class="dl" download>Download .wav</a></div>
     </div>
 
-    <!-- Round-trip self-check: transcribe the generated audio (Whisper, in-browser) and
-         compare against the input so you can confirm every sentence was actually spoken. -->
+    <!-- Round-trip self-check (dev tool, gated off unless config.verify.proxy is set):
+         transcribe the generated audio via AssemblyAI and compare against the input to
+         confirm every sentence was actually spoken. -->
     <div id="verify" class="result">
       <div class="rmeta" style="justify-content:space-between">
         <span id="vstat" style="color:var(--mut);font-size:11.5px"></span>
@@ -366,7 +367,10 @@ async function generate() {
     $('audio').src = lastURL; $('dl').href = lastURL; $('dl').download = `hinglish_${voice}.wav`;
     const secs = (r.tTotal / 1000), rt = (r.durSec / secs);
     const chunkInfo = r.nChunks > 1 ? ` · ${r.nChunks} chunks` : '';
-    $('rinfo').textContent = `${r.durSec.toFixed(1)}s audio in ${secs.toFixed(1)}s · ${rt.toFixed(2)}x realtime · ${voice}${chunkInfo}`;
+    const phaseInfo = r.tPrefill != null
+      ? ` · prefill ${(r.tPrefill/1000).toFixed(2)}s dec ${(r.tDecode/1000).toFixed(2)}s voc ${(r.tVocoder/1000).toFixed(2)}s`
+      : '';
+    $('rinfo').textContent = `${r.durSec.toFixed(1)}s audio in ${secs.toFixed(1)}s · ${rt.toFixed(2)}x realtime · ${voice}${chunkInfo}${phaseInfo}`;
     $('result').classList.add('on');
     lastResult = r;                                  // for the transcribe-&-verify round-trip
     // verify panel is a dev tool: only shown when a transcription proxy is configured (off in prod)

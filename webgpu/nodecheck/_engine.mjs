@@ -50,32 +50,56 @@ export async function loadEngine() {
     const dst = (32 + n) * D, me = SA * D; for (let d = 0; d < D; d++) emb[dst + d] = E.mel_emb[me + d] + E.mel_pos[d];
     return { data: emb, L };
   }
-  function decodeEmbed(t, pos) { const e = new Float32Array(D), me = t * D, mp = pos * D; for (let d = 0; d < D; d++) e[d] = E.mel_emb[me + d] + E.mel_pos[mp + d]; return e; }
+  // O3: reusable decode-embed buffer (ORT copies data on Tensor creation)
+  const _decBuf = new Float32Array(D);
+  function decodeEmbed(t, pos) { const me = t * D, mp = pos * D; for (let d = 0; d < D; d++) _decBuf[d] = E.mel_emb[me + d] + E.mel_pos[mp + d]; return _decBuf; }
   function emptyPast() { const f = {}; for (let j = 0; j < NL; j++) { f[`past_key_values.${j}.key`] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); f[`past_key_values.${j}.value`] = new ort.Tensor('float32', new Float32Array(0), [1, H, 0, 64]); } return f; }
   const repPen = (l, seq) => { for (const t of seq) { const s = l[t]; l[t] = s < 0 ? s * PEN : s / PEN; } };
   const argmax = (a) => { let bi = 0, bv = a[0]; for (let k = 1; k < a.length; k++) if (a[k] > bv) { bv = a[k]; bi = k; } return bi; };
+
+  // O1: pre-allocated stacked-latent buffer (max steps + prefill), reused across calls
+  const _latBuf = new Float32Array((MAXG + 1) * D);
 
   // returns {codes, wav, hitCap} for one chunk of token ids
   async function gen(ids, voice) {
     const v = voices[voice], seq = new Set([1, SA]);
     const { data, L } = prefillEmbeds(ids, v.cond);
     let out = await sStep.run({ inputs_embeds: new ort.Tensor('float32', data, [1, L, D]), ...emptyPast() });
-    let logits = Float32Array.from(out.logits.data);
-    const lats = [Float32Array.from(out.latent.data)];
+
+    // O1: write each latent directly into the pre-allocated buffer; no lats[] array
+    _latBuf.set(out.latent.data, 0);
+    let N = 1;
+    // O2: use .data directly — no Float32Array.from; consumed before next run()
+    let logits = out.logits.data;
     let past = out; const codes = []; let hitCap = true;
+
     for (let s = 0; s < MAXG; s++) {
       repPen(logits, seq); const nxt = argmax(logits);
       if (nxt === EA) { codes.push(nxt); hitCap = false; break; }
       codes.push(nxt); seq.add(nxt);
+      // O3: decodeEmbed reuses _decBuf
       const feed = { inputs_embeds: new ort.Tensor('float32', decodeEmbed(nxt, codes.length), [1, 1, D]) };
       for (let j = 0; j < NL; j++) { feed[`past_key_values.${j}.key`] = past[`present.${j}.key`]; feed[`past_key_values.${j}.value`] = past[`present.${j}.value`]; }
-      out = await sStep.run(feed); logits = Float32Array.from(out.logits.data);
-      lats.push(Float32Array.from(out.latent.data)); past = out;
+      out = await sStep.run(feed);
+      // O6: dispose previous step's KV tensors — prevents ~170 MB WASM heap accumulation
+      for (let j = 0; j < NL; j++) {
+        past[`present.${j}.key`]?.dispose?.();
+        past[`present.${j}.value`]?.dispose?.();
+      }
+      // O1: direct write, no allocation
+      _latBuf.set(out.latent.data, N * D); N++;
+      // O2: no copy
+      logits = out.logits.data; past = out;
     }
-    const N = lats.length, lat = new Float32Array(N * D);
-    for (let k = 0; k < N; k++) lat.set(lats[k], k * D);
+    // Dispose final step's KV tensors
+    for (let j = 0; j < NL; j++) {
+      past[`present.${j}.key`]?.dispose?.();
+      past[`present.${j}.value`]?.dispose?.();
+    }
+
+    // O1: subarray — no extra allocation, no post-loop copy loop
     const g = new ort.Tensor('float32', v.spk, [1, ...v.spkShape]);
-    const vout = await sVoc.run({ lat640: new ort.Tensor('float32', lat, [1, N, D]), g });
+    const vout = await sVoc.run({ lat640: new ort.Tensor('float32', _latBuf.subarray(0, N * D), [1, N, D]), g });
     return { codes, wav: Float32Array.from(vout.wav.data), hitCap };
   }
 
